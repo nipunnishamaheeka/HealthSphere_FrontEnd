@@ -4,14 +4,16 @@ import { Label, TextInput, Checkbox, Button } from "flowbite-react";
 import { HiMail } from "react-icons/hi";
 import { BsEyeSlash, BsEye } from "react-icons/bs";
 
-interface LoginFormData {
+interface SignUpFormData {
+    name: string;
     email: string;
     password: string;
     agreeToTerms: boolean;
 }
 
-export const Login: React.FC = () => {
-    const [formData, setFormData] = useState<LoginFormData>({
+export const SignUp: React.FC = () => {
+    const [formData, setFormData] = useState<SignUpFormData>({
+        name: "",
         email: "",
         password: "",
         agreeToTerms: false,
@@ -20,37 +22,33 @@ export const Login: React.FC = () => {
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("Login attempt:", formData);
+        console.log("Sign Up attempt:", formData);
     };
 
     return (
-        // <div className="min-h-screen bg-green-600 flex items-center justify-center p-6">
         <div className="w-screen h-screen bg-gradient-to-r from-blue-500 to-white flex items-center justify-center p-6">
-
             {/*<div className="w-full max-w-5xl bg-white rounded-lg shadow-lg grid md:grid-cols-2 m-4">*/}
             <div className="w-2/4 max-w-3xl bg-white rounded-lg shadow-lg grid md:grid-cols-2">
                 {/* Left Column */}
                 <div className="p-8 flex flex-col justify-between bg-white">
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-600">Welcome to</h1>
-                        <h2 className="text-2xl font-bold text-blue-700">
-                            HealthSphere
-                        </h2>
+                        <h1 className="text-4xl font-bold text-gray-600">Welcome To</h1>
+                        <h2 className="text-2xl font-bold text-blue-700">HealthSphere</h2>
                         <p className="text-gray-600 mt-4">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. We are
-                            delighted to offer a modern and user-friendly service to ensure
-                            you have the best experience.
+                            Sign up today to explore the benefits of our modern services and tools for your health
+                            journey.
                         </p>
                         <Link
-                            to="/register"
-                            className="mt-4 inline-block text-blue-700 font-bold hover:text-green-700"
+                            to="/login"
+                            className="mt-4 inline-block text-blue-600 font-bold hover:text-green-700"
                         >
-                            Join Now!
+                            Already have an account? Sign In!
                         </Link>
                     </div>
+
                     <div className="mt-6">
                         <img
-                            src="https://img.freepik.com/free-photo/couple-training-together-gym_1303-25229.jpg?t=st=1736679472~exp=1736683072~hmac=dc75302385a58197bde1918d92dcdb041bc1f4219ceb1599239f141e74192586&w=1380"
+                            src="https://img.freepik.com/free-photo/woman-gym-with-trainer_1303-5543.jpg?t=st=1736680241~exp=1736683841~hmac=c1d93f2e6362326649c7e51b8e7ca270af23d59bfe5f675bd1cfbc16ac815a1f&w=1380"
                             alt="Farmers working"
                             className="w-full rounded-lg"
                         />
@@ -58,14 +56,28 @@ export const Login: React.FC = () => {
                 </div>
 
                 {/* Right Column */}
+                {/* Right Column */}
                 <div className="bg-gray-50 p-8 flex flex-col justify-center min-h-[60vh] rounded-lg shadow-lg">
                     <div className="max-w-sm mx-auto">
-                        <div className="flex justify-end mb-4">
-                            {/* Optional: Add Sign In/Back buttons here if needed */}
-                        </div>
-                        <h3 className="text-3xl font-bold mb-1 text-gray-800">Sign In</h3>
-                        <h4 className="text-lg font-semibold text-gray-600">Stay updated on your professional world</h4>
+                        <h3 className="text-3xl font-bold mb-1 text-gray-800">Sign Up</h3>
+                        <h4 className="text-lg font-semibold text-gray-600">
+                            Create your account and start your journey!
+                        </h4>
                         <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+                            {/* Name Input */}
+                            <div>
+                                <Label htmlFor="name" value="Full Name"/>
+                                <TextInput
+                                    id="name"
+                                    type="text"
+                                    placeholder="John Doe"
+                                    value={formData.name}
+                                    onChange={(e) =>
+                                        setFormData({...formData, name: e.target.value})
+                                    }
+                                    required
+                                />
+                            </div>
                             {/* Email Input */}
                             <div>
                                 <Label htmlFor="email" value="Email"/>
@@ -75,7 +87,9 @@ export const Login: React.FC = () => {
                                     icon={HiMail}
                                     placeholder="name@gmail.com"
                                     value={formData.email}
-                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                    onChange={(e) =>
+                                        setFormData({...formData, email: e.target.value})
+                                    }
                                     required
                                 />
                             </div>
@@ -88,7 +102,9 @@ export const Login: React.FC = () => {
                                         type={showPassword ? "text" : "password"}
                                         placeholder="••••••••"
                                         value={formData.password}
-                                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                        onChange={(e) =>
+                                            setFormData({...formData, password: e.target.value})
+                                        }
                                         required
                                     />
                                     <button
@@ -101,7 +117,7 @@ export const Login: React.FC = () => {
                                 </div>
                             </div>
                             {/* Terms Checkbox */}
-                            <div className="flex items-center gap-2 mt-4 ">
+                            <div className="flex items-center gap-2 mt-4">
                                 <Checkbox
                                     id="termsCheck"
                                     checked={formData.agreeToTerms}
@@ -113,28 +129,30 @@ export const Login: React.FC = () => {
                                     }
                                 />
                                 <Label htmlFor="termsCheck">
-                                    I agree to all Terms, Privacy Policy, and Fees
+                                    I agree to the Terms, Privacy Policy, and Fees
                                 </Label>
                             </div>
                             {/* Submit Button */}
                             <Button
                                 type="submit"
+                                color="success"
                                 className="w-full h-12 text-lg font-semibold bg-blue-500 text-white hover:bg-blue-600 focus:outline-none disabled:bg-blue-300 flex items-center justify-center"
                                 disabled={!formData.agreeToTerms}
                             >
-                                Sign In
+                                Sign Up
                             </Button>
 
-
-
-                            {/* Centered Sign Up Link */}
+                            {/* Centered Sign In Link */}
                             <div className="mt-6 text-center">
-                                <Label htmlFor="signup" className="block text-gray-600">
-                                    Or Sign Up Using
+                                <Label htmlFor="signin" className="block text-gray-600">
+                                    Already have an account?
                                 </Label>
-                                <Link to="/signup"
-                                      className="text-blue-500 hover:underline text-sm font-semibold mt-2 inline-block">Sign
-                                    Up</Link>
+                                <a
+                                    href="/"
+                                    className="text-blue-500 hover:underline text-sm font-semibold mt-2 inline-block"
+                                >
+                                    Sign In
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -146,4 +164,4 @@ export const Login: React.FC = () => {
     );
 };
 
-export default Login;
+export default SignUp;
