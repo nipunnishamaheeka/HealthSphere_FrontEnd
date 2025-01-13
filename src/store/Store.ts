@@ -1,11 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import usersReducer from './slices/UserSlice.tsx';
-import editUserFormReducer from './slices/editUserFormSlice.tsx';
-
+// import usersReducer from './slices/UserSlice.ts';
+// import editUserFormReducer from './slices/editUserFormSlice.ts';
+import trainersReducer from './slices/trainerSlice.ts';
 export const store = configureStore({
     reducer: {
-        users: usersReducer,
-        editUserForm: editUserFormReducer,
+        // users: usersReducer,
+        // editUserForm: editUserFormReducer,
+        trainer: trainersReducer,
     },
 });
 
