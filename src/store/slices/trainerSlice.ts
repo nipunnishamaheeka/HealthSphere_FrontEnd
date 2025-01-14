@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Trainer {
     id: string;
@@ -6,8 +6,8 @@ interface Trainer {
     email: string;
     role: string;
     userName: string;
-    mealPlanner: 'Yes' | 'No';
-    status: 'Online' | 'Offline';
+    mealPlanner: "Yes" | "No";
+    status: "Online" | "Offline";
     image: string;
 }
 
@@ -18,20 +18,20 @@ interface TrainerState {
 const initialState: TrainerState = {
     trainers: [
         {
-            id: '1',
-            name: 'John Doe',
-            email: 'john.doe@example.com',
-            role: 'Trainer',
-            userName: 'johndoe',
-            mealPlanner: 'Yes',
-            status: 'Online',
-            image: 'https://randomuser.me/api/portraits/men/1.jpg',
+            id: "1",
+            name: "John Doe",
+            email: "john.doe@example.com",
+            role: "Trainer",
+            userName: "johndoe",
+            mealPlanner: "Yes",
+            status: "Online",
+            image: "https://randomuser.me/api/portraits/men/1.jpg",
         },
     ],
 };
 
 const trainerSlice = createSlice({
-    name: 'trainer',
+    name: "trainer",
     initialState,
     reducers: {
         // Add a new trainer
@@ -41,12 +41,12 @@ const trainerSlice = createSlice({
 
         // Remove a trainer by ID
         removeTrainer(state, action: PayloadAction<string>) {
-            state.trainers = state.trainers.filter(trainer => trainer.id !== action.payload);
+            state.trainers = state.trainers.filter((trainer) => trainer.id !== action.payload);
         },
 
         // Update a trainer by ID
         updateTrainer(state, action: PayloadAction<Trainer>) {
-            const index = state.trainers.findIndex(trainer => trainer.id === action.payload.id);
+            const index = state.trainers.findIndex((trainer) => trainer.id === action.payload.id);
             if (index !== -1) {
                 state.trainers[index] = action.payload;
             }

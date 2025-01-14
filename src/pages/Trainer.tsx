@@ -3,10 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/Store';
 import { updateTrainer, resetForm } from '../store/slices/trainerSlice';
 import { AddTrainer } from '../components/AddTrainer';
+import {DeleteTrainerPopup} from "../components/DeleteTrainerPopup.tsx";
 
 export const Trainer: React.FC = () => {
     const trainer = useSelector((state: RootState) => state.trainer);
     const [isAddTrainerOpen, setIsAddTrainerOpen] = React.useState(false);
+    const [deleteTrainerOpen, setIsDeleteTrainer] = React.useState(false);
     const dispatch = useDispatch();
 
     const handleEditFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -18,6 +20,13 @@ export const Trainer: React.FC = () => {
         const { name, value } = e.target;
         dispatch(updateTrainer({ field: name, value }));
     };
+    const handelDelete =async (result:string) =>{
+        setIsDeleteTrainer(!deleteTrainerOpen)
+        if (result === "yes"){
+            console.log("delete")
+
+        }
+    }
 
     const addNewTrainer = (newTrainer: TrainerData) => {
         dispatch(updateTrainer(newTrainer)); // Update the store with the new trainer
@@ -49,6 +58,7 @@ export const Trainer: React.FC = () => {
                     <button
                         type="button"
                         className="text-white bg-gray-800 hover:bg-black hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
+                        onClick={() => setIsDeleteTrainer(true)}
                     >
                         Delete
                     </button>
@@ -126,6 +136,7 @@ export const Trainer: React.FC = () => {
                     onAdd={addNewTrainer}
                 />
             )}
+            {deleteTrainerOpen && <DeleteTrainerPopup close={handelDelete}/>}
         </div>
     );
 };
