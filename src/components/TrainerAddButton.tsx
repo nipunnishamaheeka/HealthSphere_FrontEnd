@@ -6,11 +6,11 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
-} from "../common/Dialog";
-import { Button } from "../common/Button";
-import { Input } from "../common/Inputs";
-import { Label } from "../common/Lable";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../common/Select";
+} from "./common/Dialog";
+import { Button } from "./common/Button";
+import { Input } from "./common/Inputs";
+import { Label } from "./common/Lable";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./common/Select";
 
 const AddTrainerPopups: React.FC = () => {
     const [showTrainerModal, setShowTrainerModal] = useState<boolean>(false);

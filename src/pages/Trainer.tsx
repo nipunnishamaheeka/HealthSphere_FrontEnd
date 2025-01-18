@@ -1,142 +1,300 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../store/Store';
-import { updateTrainer, resetForm } from '../store/slices/trainerSlice';
-import { AddTrainer } from '../components/AddTrainer';
-import {DeleteTrainerPopup} from "../components/DeleteTrainerPopup.tsx";
-
-export const Trainer: React.FC = () => {
-    const trainer = useSelector((state: RootState) => state.trainer);
-    const [isAddTrainerOpen, setIsAddTrainerOpen] = React.useState(false);
-    const [deleteTrainerOpen, setIsDeleteTrainer] = React.useState(false);
-    const dispatch = useDispatch();
-
-    const handleEditFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        dispatch(resetForm());
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
+import {
+    Users, Calendar, MessageSquare, Activity,
+    ChevronRight, Search, Plus, MoreVertical,
+    TrendingUp, AlertCircle
+} from 'lucide-react';
+import AddTrainerPopups from '../components/TrainerAddButton'
+interface Client {
+    name: string;
+    plan: string;
+    progress: number;
+    nextSession: string;
+    alerts: number;
+    metrics: {
+        attendance: string;
+        completion: string;
+        engagement: string;
     };
+}
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        dispatch(updateTrainer({ field: name, value }));
-    };
-    const handelDelete =async (result:string) =>{
-        setIsDeleteTrainer(!deleteTrainerOpen)
-        if (result === "yes"){
-            console.log("delete")
+interface Session {
+    client: string;
+    type: string;
+    time: string;
+    duration: string;
+}
 
+const TrainerDashboard: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<string>('clients');
+
+    const clients: Client[] = [
+        {
+            name: 'Sarah Johnson',
+            plan: 'Weight Loss Program',
+            progress: 68,
+            nextSession: '2024-01-16 10:00 AM',
+            alerts: 2,
+            metrics: {
+                attendance: '90%',
+                completion: '85%',
+                engagement: '95%'
+            }
+        },
+        {
+            name: 'Mike Thompson',
+            plan: 'Muscle Gain Program',
+            progress: 75,
+            nextSession: '2024-01-16 2:00 PM',
+            alerts: 0,
+            metrics: {
+                attendance: '95%',
+                completion: '88%',
+                engagement: '92%'
+            }
+        },
+        {
+            name: 'Emily Davis',
+            plan: 'Fitness Maintenance',
+            progress: 82,
+            nextSession: '2024-01-17 11:00 AM',
+            alerts: 1,
+            metrics: {
+                attendance: '85%',
+                completion: '90%',
+                engagement: '88%'
+            }
         }
-    }
+    ];
 
-    const addNewTrainer = (newTrainer: TrainerData) => {
-        dispatch(updateTrainer(newTrainer)); // Update the store with the new trainer
-    };
+    const upcomingSessions: Session[] = [
+        {
+            client: 'Sarah Johnson',
+            type: 'Personal Training',
+            time: '10:00 AM',
+            duration: '60 min'
+        },
+        {
+            client: 'Mike Thompson',
+            type: 'Progress Review',
+            time: '2:00 PM',
+            duration: '30 min'
+        },
+        {
+            client: 'Group Session',
+            type: 'HIIT Workout',
+            time: '4:00 PM',
+            duration: '45 min'
+        }
+    ];
 
     return (
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full">
-            <div
-                className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-4 bg-white dark:bg-gray-900">
-
-                {/*<div>*/}
-                {/*    <button*/}
-                {/*        className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"*/}
-                {/*    >*/}
-                {/*        Action*/}
-                {/*    </button>*/}
-                {/*</div>*/}
-                <div>
-                    <h1 className="text-lg font-semibold text-gray-800">Trainer Management</h1>
-                    <p className="text-sm text-gray-500">Manage trainers and transactions effectively</p>
-                </div>
-                <div className="flex items-center gap-4">
-                    <input
-                        type="text"
-                        id="table-search-users"
-                        className="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Search for users"
-                    />
-                    <button
-                        type="button"
-                        className="text-white bg-gray-800 hover:bg-black hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
-                        onClick={() => setIsDeleteTrainer(true)}
-                    >
-                        Delete
-                    </button>
-                    <button
-                        type="button"
-                        className="text-white bg-gray-800 hover:bg-black hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5"
-                        onClick={() => setIsAddTrainerOpen(true)}
-                    >
-                        Add New
-                    </button>
+        <div className="min-h-screen bg-gray-50">
+            {/* Top Bar */}
+            <div className="bg-white border-b">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <h1 className="text-2xl font-bold text-gray-900">Trainer Dashboard</h1>
+                        <div className="flex items-center space-x-4">
+                            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                <Plus className="h-5 w-5" />
+                            </button>
+                            <AddTrainerPopups />
+                            <img
+                                className="h-8 w-8 rounded-full"
+                                src="/api/placeholder/32/32"
+                                alt="Trainer profile"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Users Table */}
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th className="p-4">
-                        <input
-                            type="checkbox"
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-                        />
-                    </th>
-                    <th className="px-6 py-3">Name</th>
-                    <th className="px-6 py-3">Role</th>
-                    <th className="px-6 py-3">User Name</th>
-                    <th className="px-6 py-3">Meal Planner</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                {trainer.trainers.map((user) => (
-                    <tr key={user.trainer_id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td className="w-4 p-4">
-                            <input
-                                type="checkbox"
-                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-                            />
-                        </td>
-                        <td className="px-6 py-4">
-                            <div className="flex items-center">
-                                <img className="w-10 h-10 rounded-full" src={user.image} alt={`${user.name} image`} />
-                                <div className="ps-3">
-                                    <div className="text-base font-semibold">{user.name}</div>
-                                    <div className="font-normal text-gray-500">{user.email}</div>
+            {/* Main Content */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Stats Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <Card>
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Total Clients</p>
+                                    <p className="text-2xl font-bold">24</p>
                                 </div>
+                                <Users className="h-8 w-8 text-blue-500" />
                             </div>
-                        </td>
-                        <td className="px-6 py-4">{user.role}</td>
-                        <td className="px-6 py-4">{user.userName}</td>
-                        <td className="px-6 py-4">{user.mealPlanner}</td>
-                        <td className="px-6 py-4">
-                            <div className="flex items-center">
-                                <div className={`h-2.5 w-2.5 rounded-full ${user.status === 'Online' ? 'bg-green-500' : 'bg-red-500'} me-2`} />
-                                {user.status}
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Today's Sessions</p>
+                                    <p className="text-2xl font-bold">6</p>
+                                </div>
+                                <Calendar className="h-8 w-8 text-green-500" />
                             </div>
-                        </td>
-                        <td className="px-6 py-4">
-                            <button
-                                className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                                onClick={() => dispatch(updateTrainer(user))}
-                            >
-                                Edit user
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Active Programs</p>
+                                    <p className="text-2xl font-bold">8</p>
+                                </div>
+                                <Activity className="h-8 w-8 text-purple-500" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Messages</p>
+                                    <p className="text-2xl font-bold">12</p>
+                                </div>
+                                <MessageSquare className="h-8 w-8 text-orange-500" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
 
-            {isAddTrainerOpen && (
-                <AddTrainer
-                    onClose={() => setIsAddTrainerOpen(false)}
-                    onAdd={addNewTrainer}
-                />
-            )}
-            {deleteTrainerOpen && <DeleteTrainerPopup close={handelDelete}/>}
+                {/* Client List */}
+                <Card className="mb-8">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle>Active Clients</CardTitle>
+                        <div className="flex items-center space-x-2">
+                            <div className="relative">
+                                <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search clients..."
+                                    className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                Add Client
+                            </button>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {clients.map((client, index) => (
+                                <div key={index} className="bg-gray-50 rounded-lg p-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-4">
+                                            <img
+                                                src="/api/placeholder/40/40"
+                                                alt={client.name}
+                                                className="h-10 w-10 rounded-full"
+                                            />
+                                            <div>
+                                                <h3 className="font-medium">{client.name}</h3>
+                                                <p className="text-sm text-gray-500">{client.plan}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-8">
+                                            <div>
+                                                <p className="text-sm text-gray-500">Progress</p>
+                                                <div className="flex items-center space-x-2">
+                                                    <div className="w-32 h-2 bg-gray-200 rounded-full">
+                                                        <div
+                                                            className="h-2 bg-green-500 rounded-full"
+                                                            style={{ width: `${client.progress}%` }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-sm font-medium">{client.progress}%</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-500">Next Session</p>
+                                                <p className="font-medium">{client.nextSession}</p>
+                                            </div>
+                                            {client.alerts > 0 && (
+                                                <div className="flex items-center space-x-1 text-red-500">
+                                                    <AlertCircle className="h-5 w-5" />
+                                                    <span>{client.alerts}</span>
+                                                </div>
+                                            )}
+                                            <button className="p-2 hover:bg-gray-200 rounded-full">
+                                                <MoreVertical className="h-5 w-5 text-gray-500" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Schedule */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Today's Schedule</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {upcomingSessions.map((session, index) => (
+                                        <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                            <div className="flex items-center space-x-4">
+                                                <Calendar className="h-6 w-6 text-blue-500" />
+                                                <div>
+                                                    <h3 className="font-medium">{session.client}</h3>
+                                                    <p className="text-sm text-gray-500">{session.type}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-6">
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Time</p>
+                                                    <p className="font-medium">{session.time}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Duration</p>
+                                                    <p className="font-medium">{session.duration}</p>
+                                                </div>
+                                                <button className="p-2 hover:bg-gray-200 rounded-full">
+                                                    <ChevronRight className="h-5 w-5 text-gray-500" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Quick Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                                    <div className="flex items-center space-x-3">
+                                        <Plus className="h-5 w-5 text-blue-500" />
+                                        <span className="font-medium">Add New Client</span>
+                                    </div>
+                                    <ChevronRight className="h-5 w-5 text-gray-500" />
+                                </button>
+                                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                                    <div className="flex items-center space-x-3">
+                                        <TrendingUp className="h-5 w-5 text-green-500" />
+                                        <span className="font-medium">Track Client Progress</span>
+                                    </div>
+                                    <ChevronRight className="h-5 w-5 text-gray-500" />
+                                </button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
         </div>
     );
 };
+
+export default TrainerDashboard;

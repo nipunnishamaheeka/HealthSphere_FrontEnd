@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Activity, Clock, Flame, LineChart, Plus } from 'lucide-react';
-import LogActivityPopup from "@/components/new Added/LogActivityPopup";
+import LogActivityPopup from "@/components/LogActivityPopup";
 
 
 interface ActivityItem {

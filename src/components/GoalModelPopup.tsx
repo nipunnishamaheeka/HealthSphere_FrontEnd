@@ -6,20 +6,20 @@ import {
     DialogTitle,
     DialogFooter,
     DialogDescription,
-} from '../common/Dialog';
-import { Button } from '../common/Button';
-import { Input } from '../common/Inputs';
-import { Label } from '../common/Lable';
+} from './common/Dialog';
+import { Button } from './common/Button';
+import { Input } from './common/Inputs';
+import { Label } from './common/Lable';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '../common/Select';
+} from './common/Select';
 import { Calendar as CalendarIcon, Plus, X } from 'lucide-react';
-import { Calendar } from '../common/Celender';
-import { Popover, PopoverContent, PopoverTrigger } from '../common/Popover';
+import { Calendar } from './common/Celender';
+import { Popover, PopoverContent, PopoverTrigger } from './common/Popover';
 import { format } from 'date-fns';
 
 interface AddGoalModalProps {

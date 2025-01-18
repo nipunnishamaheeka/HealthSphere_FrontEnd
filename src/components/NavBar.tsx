@@ -4,13 +4,13 @@ import { Trainer } from '../pages/Trainer.tsx';
 import {Dashboard} from '../pages/Dashboard';
 import {HealthLog} from "../pages/HealthLog.tsx";
 import ActivityTracker from "../pages/ActivityTracker";
-import HealthLogsNew from "../pages/HealthLogsNew";
+import HealthLogsNew from "../pages/HealthLogs";
 import MealPlan from "../pages/MealPlan";
 import GoalSetting from "../pages/GoalSetting";
 import EmergencyContact from "@/pages/EmergencyContact";
 import Community from "@/pages/Community";
 import InsightsAndAnalytics from "@/pages/InsightsAndAnalytics";
-import TrainerNew from "@/pages/TrainerNew";
+import TrainerNew from "@/pages/Trainer";
 // import SettingsPage from '../pages/Settings';
 
 export const NavBar: React.FC = () => {

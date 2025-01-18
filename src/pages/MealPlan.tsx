@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
 import { Coffee, ChevronRight, Plus } from 'lucide-react';
-import MealPlanPopup from "@/components/new Added/MealPlanPopup";
+import MealPlanPopup from "@/components/MealPlanPopup";
 
 interface Meal {
     type: string;

@@ -11,7 +11,7 @@ import {
     CheckCircle2,
     Trophy,
 } from 'lucide-react';
-import AddGoalModal from "../components/new Added/GoalModelPopup";
+import AddGoalModal from "../components/GoalModelPopup";
 
 // Define types for the component's data
 interface Milestone {

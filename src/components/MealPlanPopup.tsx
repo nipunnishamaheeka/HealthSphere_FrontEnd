@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { X, Plus, Minus } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../common/Card';
-import { Button } from '../common/Button';
-import { Input } from '../common/Inputs';
+import { Card, CardContent, CardHeader, CardTitle } from './common/Card';
+import { Button } from './common/Button';
+import { Input } from './common/Inputs';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '../common/Select';
+} from './common/Select';
 
 interface MealPlanPopupProps {
     isOpen: boolean;
