@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
-import {Menu, X, User, LogOut, Settings, LayoutDashboard, User2} from 'lucide-react';
+import {Menu, X, User, LogOut, Settings, LayoutDashboard, Activity, Dumbbell , Heart, Coffee, Target,Users, BarChart} from 'lucide-react';
 import { Trainer } from '../pages/Trainer.tsx';
 import {Dashboard} from '../pages/Dashboard';
 import {HealthLog} from "../pages/HealthLog.tsx";
+import ActivityTracker from "../pages/ActivityTracker";
+import HealthLogsNew from "../pages/HealthLogsNew";
+import MealPlan from "../pages/MealPlan";
+import GoalSetting from "../pages/GoalSetting";
+import EmergencyContact from "@/pages/EmergencyContact";
+import Community from "@/pages/Community";
+import InsightsAndAnalytics from "@/pages/InsightsAndAnalytics";
+import TrainerNew from "@/pages/TrainerNew";
 // import SettingsPage from '../pages/Settings';
 
 export const NavBar: React.FC = () => {
@@ -23,11 +31,31 @@ export const NavBar: React.FC = () => {
         console.log('Logged out');
     };
 
+    // const navigationItems = [
+    //     { id: 'Dashboard', label: 'Dashboard', icon: LayoutDashboard, component: <Dashboard /> },
+    //     // { id: 'Trainer', label: 'Trainer OLD', icon: User, component: <Trainer /> },
+    //     // { id: 'HealthLog', label: 'Health Logs OLD', icon: User2, component: <HealthLog /> },
+    //     { id: 'ActivityItem', label: 'Activity Tracker', icon: User2, component: <ActivityTracker /> },
+    //     { id: 'HealthMetric', label: 'Health Log New', icon: User2, component: <HealthLogsNew /> },
+    //     { id: 'Meal', label: 'Meal Plan', icon: User2, component: <MealPlan /> },
+    //     { id: 'Goal', label: 'Goal Setting', icon: User2, component: <GoalSetting /> },
+    //     { id: 'Contact', label: 'Emergency Contact', icon: User2, component: <EmergencyContact /> },
+    //     { id: 'Group', label: 'Community', icon: User2, component: <Community /> },
+    //     { id: 'WeeklyData', label: 'Analytics', icon: User2, component: <InsightsAndAnalytics /> },
+    //
+    //     // { id: 'Settings', label: 'Settings', icon: Settings, component: <SettingsPage /> },
+    // ];
     const navigationItems = [
         { id: 'Dashboard', label: 'Dashboard', icon: LayoutDashboard, component: <Dashboard /> },
-        { id: 'Trainer', label: 'Trainer', icon: User, component: <Trainer /> },
-        { id: 'HealthLog', label: 'Health Logs', icon: User2, component: <HealthLog /> },
-        // { id: 'Settings', label: 'Settings', icon: Settings, component: <SettingsPage /> },
+        { id: 'HealthMetric', label: 'Health Log New', icon: Heart, component: <HealthLogsNew /> },
+        { id: 'Client', label: 'Trainer Ui', icon: Dumbbell, component: <TrainerNew /> },
+        { id: 'ActivityItem', label: 'Activity Tracker', icon: Activity, component: <ActivityTracker /> },
+        { id: 'Meal', label: 'Meal Plan', icon: Coffee, component: <MealPlan /> },
+        { id: 'Goal', label: 'Goal Setting', icon: Target, component: <GoalSetting /> },
+        { id: 'Group', label: 'Community', icon: Users, component: <Community /> },
+        { id: 'WeeklyData', label: 'Analytics', icon: BarChart, component: <InsightsAndAnalytics /> },
+        { id: 'Contact', label: 'Emergency Contact', icon: User, component: <EmergencyContact /> },
+
     ];
 
     return (
