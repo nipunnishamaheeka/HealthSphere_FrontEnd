@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Menu, X, User, LogOut, Settings, LayoutDashboard } from 'lucide-react';
+import {Menu, X, User, LogOut, Settings, LayoutDashboard, User2} from 'lucide-react';
 import { Trainer } from '../pages/Trainer.tsx';
 import {Dashboard} from '../pages/Dashboard';
+import {HealthLog} from "../pages/HealthLog.tsx";
 // import SettingsPage from '../pages/Settings';
 
 export const NavBar: React.FC = () => {
@@ -25,6 +26,7 @@ export const NavBar: React.FC = () => {
     const navigationItems = [
         { id: 'Dashboard', label: 'Dashboard', icon: LayoutDashboard, component: <Dashboard /> },
         { id: 'Trainer', label: 'Trainer', icon: User, component: <Trainer /> },
+        { id: 'HealthLog', label: 'Health Logs', icon: User2, component: <HealthLog /> },
         // { id: 'Settings', label: 'Settings', icon: Settings, component: <SettingsPage /> },
     ];
 

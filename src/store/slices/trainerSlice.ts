@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Trainer {
-    id: string;
+    trainer_id: string;
     name: string;
     email: string;
     role: string;
@@ -18,7 +18,7 @@ interface TrainerState {
 const initialState: TrainerState = {
     trainers: [
         {
-            id: "1",
+            trainer_id: "1",
             name: "John Doe",
             email: "john.doe@example.com",
             role: "Trainer",
@@ -41,12 +41,12 @@ const trainerSlice = createSlice({
 
         // Remove a trainer by ID
         removeTrainer(state, action: PayloadAction<string>) {
-            state.trainers = state.trainers.filter((trainer) => trainer.id !== action.payload);
+            state.trainers = state.trainers.filter((trainer) => trainer.trainer_id !== action.payload);
         },
 
         // Update a trainer by ID
         updateTrainer(state, action: PayloadAction<Trainer>) {
-            const index = state.trainers.findIndex((trainer) => trainer.id === action.payload.id);
+            const index = state.trainers.findIndex((trainer) => trainer.trainer_id === action.payload.trainer_id);
             if (index !== -1) {
                 state.trainers[index] = action.payload;
             }
