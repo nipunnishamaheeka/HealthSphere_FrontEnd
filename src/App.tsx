@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login.tsx";
-import RootLayout from "./components/RootLayout.tsx";
+import RootLayout from "./components/layout/RootLayout.tsx";
 import SignUp from "./pages/SignUp.tsx";
 
 function App() {
