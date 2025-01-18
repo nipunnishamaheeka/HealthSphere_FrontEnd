@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
 import { Button } from '../components/common/Button';
-import { Activity, Clock, Flame, LineChart, Plus } from 'lucide-react';
-import LogActivityPopup from "@/components/LogActivityPopup";
-
+import { Activity, Clock, Flame, LineChart, Plus, Trash2 } from 'lucide-react';
+import LogActivityPopup from "../components/LogActivityPopup";
 
 interface ActivityItem {
     type: string;
@@ -39,6 +38,10 @@ const ActivityTracker: React.FC = () => {
 
     const handleAddActivity = (newActivity: ActivityItem) => {
         setActivities([...activities, newActivity]);
+    };
+
+    const handleDeleteActivity = (index: number) => {
+        setActivities(activities.filter((_, i) => i !== index));
     };
 
     // Calculate totals
@@ -141,6 +144,12 @@ const ActivityTracker: React.FC = () => {
                                         <p className="text-sm text-gray-500">Calories</p>
                                         <p className="font-medium">{activity.calories}</p>
                                     </div>
+                                    <Button
+                                        onClick={() => handleDeleteActivity(index)}
+                                        className="text-red-500 hover:text-red-700"
+                                    >
+                                        <Trash2 className="h-5 w-5" />
+                                    </Button>
                                 </div>
                             </div>
                         ))}
