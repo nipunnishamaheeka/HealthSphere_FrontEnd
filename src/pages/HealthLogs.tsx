@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
 import { Heart, Droplets, Moon, Weight } from 'lucide-react';
 
-interface HealthMetric {
-    icon: React.ElementType;
-    label: string;
-    value: string;
-    trend: string;
-    color: string;
-}
+const HealthLogs = () => {
+    // State for form inputs
+    const [formData, setFormData] = useState({
+        weight: '',
+        systolic: '',
+        diastolic: '',
+        sleepHours: '',
+        waterIntake: ''
+    });
 
-const HealthLogs: React.FC = () => {
-    const healthMetrics: HealthMetric[] = [
+    // State for past logs
+    const [pastLogs, setPastLogs] = useState([]);
+
+    const healthMetrics = [
         {
             icon: Weight,
             label: 'Weight',
@@ -42,6 +46,38 @@ const HealthLogs: React.FC = () => {
         },
     ];
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const newLog = {
+            id: Date.now(),
+            date: new Date().toLocaleDateString(),
+            weight: formData.weight,
+            bloodPressure: `${formData.systolic}/${formData.diastolic}`,
+            sleepHours: formData.sleepHours,
+            waterIntake: formData.waterIntake,
+        };
+
+        setPastLogs(prev => [newLog, ...prev]);
+
+        // Reset form
+        setFormData({
+            weight: '',
+            systolic: '',
+            diastolic: '',
+            sleepHours: '',
+            waterIntake: ''
+        });
+    };
+
     return (
         <div className="space-y-6 p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -64,12 +100,15 @@ const HealthLogs: React.FC = () => {
                     <CardTitle>Health Log Entry</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <form className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Weight (kg)</label>
                                 <input
                                     type="number"
+                                    name="weight"
+                                    value={formData.weight}
+                                    onChange={handleInputChange}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     placeholder="Enter weight"
                                 />
@@ -79,11 +118,17 @@ const HealthLogs: React.FC = () => {
                                 <div className="flex space-x-2">
                                     <input
                                         type="number"
+                                        name="systolic"
+                                        value={formData.systolic}
+                                        onChange={handleInputChange}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         placeholder="Systolic"
                                     />
                                     <input
                                         type="number"
+                                        name="diastolic"
+                                        value={formData.diastolic}
+                                        onChange={handleInputChange}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         placeholder="Diastolic"
                                     />
@@ -93,6 +138,9 @@ const HealthLogs: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-700">Sleep Hours</label>
                                 <input
                                     type="number"
+                                    name="sleepHours"
+                                    value={formData.sleepHours}
+                                    onChange={handleInputChange}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     placeholder="Hours of sleep"
                                 />
@@ -101,6 +149,9 @@ const HealthLogs: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-700">Water Intake (L)</label>
                                 <input
                                     type="number"
+                                    name="waterIntake"
+                                    value={formData.waterIntake}
+                                    onChange={handleInputChange}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     placeholder="Liters of water"
                                 />
@@ -115,6 +166,38 @@ const HealthLogs: React.FC = () => {
                             </button>
                         </div>
                     </form>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Past Health Logs</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                            <tr className="border-b">
+                                <th className="px-4 py-2 text-left">Date</th>
+                                <th className="px-4 py-2 text-left">Weight (kg)</th>
+                                <th className="px-4 py-2 text-left">Blood Pressure</th>
+                                <th className="px-4 py-2 text-left">Sleep (hours)</th>
+                                <th className="px-4 py-2 text-left">Water (L)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {pastLogs.map((log) => (
+                                <tr key={log.id} className="border-b">
+                                    <td className="px-4 py-2">{log.date}</td>
+                                    <td className="px-4 py-2">{log.weight}</td>
+                                    <td className="px-4 py-2">{log.bloodPressure}</td>
+                                    <td className="px-4 py-2">{log.sleepHours}</td>
+                                    <td className="px-4 py-2">{log.waterIntake}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </CardContent>
             </Card>
         </div>
