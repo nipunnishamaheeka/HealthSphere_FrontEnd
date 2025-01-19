@@ -1,59 +1,46 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
-import { Coffee, ChevronRight, Plus } from 'lucide-react';
-import MealPlanPopup from "@/components/MealPlanPopup";
-
-interface Meal {
-    type: string;
-    time: string;
-    items: string[];
-    calories: number;
-    protein: string;
-    carbs: string;
-    fat: string;
-}
+import { Coffee, ChevronRight, Plus, Edit } from 'lucide-react';
+import MealPlanPopup from "../components/MealPlanPopup";
+import { useAppDispatch, useAppSelector } from '../types/hooks';
+import { addMeal, updateMeal } from '../store/slices/MealPlannerSlice';
+import { useState } from 'react';
+import { Meal } from '../types/type';
 
 const MealPlanner: React.FC = () => {
+    const dispatch = useAppDispatch();
+    const meals = useAppSelector(state => state.mealPlanner.meals);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [meals, setMeals] = useState<Meal[]>([
-        {
-            type: 'Breakfast',
-            time: '8:00 AM',
-            items: ['Oatmeal with berries', 'Greek yogurt', 'Green tea'],
-            calories: 420,
-            protein: '15g',
-            carbs: '65g',
-            fat: '12g',
-        },
-        {
-            type: 'Lunch',
-            time: '1:00 PM',
-            items: ['Grilled chicken salad', 'Quinoa', 'Olive oil dressing'],
-            calories: 550,
-            protein: '35g',
-            carbs: '45g',
-            fat: '25g',
-        },
-        {
-            type: 'Dinner',
-            time: '7:00 PM',
-            items: ['Salmon', 'Roasted vegetables', 'Brown rice'],
-            calories: 650,
-            protein: '40g',
-            carbs: '55g',
-            fat: '30g',
-        },
-    ]);
+    const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
 
     const handleAddMeal = (newMeal: Meal) => {
-        setMeals([...meals, newMeal]);
+        dispatch(addMeal(newMeal));
+        setIsPopupOpen(false);
+    };
+
+    const handleEditMeal = (updatedMeal: Meal) => {
+        if (editingMeal) {
+            dispatch(updateMeal({ type: editingMeal.type, updatedMeal }));
+        }
+        setEditingMeal(null);
+        setIsPopupOpen(false);
+    };
+
+    const openEditPopup = (meal: Meal) => {
+        setEditingMeal(meal);
+        setIsPopupOpen(true);
     };
     return (
         <div className="space-y-6 p-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">Today's Meal Plan</h2>
-                <button className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                        onClick={() => setIsPopupOpen(true)}>
+                <button
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    onClick={() => {
+                        setEditingMeal(null);
+                        setIsPopupOpen(true);
+                    }}
+                >
                     <Plus className="h-5 w-5" />
                     <span>Add Meal</span>
                 </button>
@@ -71,7 +58,15 @@ const MealPlanner: React.FC = () => {
                                         <p className="text-sm text-gray-500">{meal.time}</p>
                                     </div>
                                 </div>
-                                <ChevronRight className="h-6 w-6 text-gray-400" />
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        className="text-blue-500 hover:text-blue-700"
+                                        onClick={() => openEditPopup(meal)}
+                                    >
+                                        <Edit className="h-5 w-5" />
+                                    </button>
+                                    <ChevronRight className="h-6 w-6 text-gray-400" />
+                                </div>
                             </div>
 
                             <div className="mt-4">
@@ -113,27 +108,29 @@ const MealPlanner: React.FC = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
                             <p className="text-sm text-gray-500">Total Calories</p>
-                            <p className="text-2xl font-bold">1,620</p>
+                            <p className="text-2xl font-bold">{meals.reduce((sum, meal) => sum + meal.calories, 0)}</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Total Protein</p>
-                            <p className="text-2xl font-bold">90g</p>
+                            <p className="text-2xl font-bold">{meals.reduce((sum, meal) => sum + parseInt(meal.protein), 0)}g</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Total Carbs</p>
-                            <p className="text-2xl font-bold">165g</p>
+                            <p className="text-2xl font-bold">{meals.reduce((sum, meal) => sum + parseInt(meal.carbs), 0)}g</p>
                         </div>
                         <div>
                             <p className="text-sm text-gray-500">Total Fat</p>
-                            <p className="text-2xl font-bold">67g</p>
+                            <p className="text-2xl font-bold">{meals.reduce((sum, meal) => sum + parseInt(meal.fat), 0)}g</p>
                         </div>
                     </div>
                 </CardContent>
             </Card>
+
             <MealPlanPopup
                 isOpen={isPopupOpen}
                 onClose={() => setIsPopupOpen(false)}
-                onSubmit={handleAddMeal}
+                onSubmit={editingMeal ? handleEditMeal : handleAddMeal}
+                initialData={editingMeal}
             />
         </div>
     );
