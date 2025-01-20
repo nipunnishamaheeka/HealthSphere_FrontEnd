@@ -2,9 +2,11 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login.tsx";
 import RootLayout from "./components/layout/RootLayout.tsx";
 import SignUp from "./pages/SignUp.tsx";
+import {ThemeProvider} from "./components/Theme/ThemeContext";
 
 function App() {
     return (
+        <ThemeProvider>
         <BrowserRouter>
             <Routes>
                 {/* Public routes */}
@@ -13,11 +15,10 @@ function App() {
 
                 {/* Protected routes */}
                 <Route path="/app" element={<RootLayout />}>
-                    {/*<Route path="trainer" element={<Trainer />} />*/}
-                    {/*<Route path="dashboard" element={<Dashboard />} />*/}
                 </Route>
             </Routes>
         </BrowserRouter>
+        </ThemeProvider>
     );
 }
 
