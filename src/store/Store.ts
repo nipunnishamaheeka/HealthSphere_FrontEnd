@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import  mealPlannerReducer  from './slices/MealPlannerSlice';
 import goalReducer from './slices/GoalSlice';
 import activityReducer from './slices/ActivitySlice';
+import contactsReducer from './slices/ContactsSlice';
 export const store = configureStore({
     reducer: {
         // // users: usersReducer,
@@ -11,6 +12,7 @@ export const store = configureStore({
         mealPlanner: mealPlannerReducer,
         activity: activityReducer,
         goal: goalReducer,
+        contacts: contactsReducer
     },
 });
 

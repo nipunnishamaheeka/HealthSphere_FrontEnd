@@ -1,4 +1,5 @@
 // MealPlaner
+
 export interface Meal {
     type: string;
     time: string;
@@ -73,4 +74,20 @@ export interface User {
     achievementPoints: number;
     goals: Goal[];
     achievements: Achievement[];
+}
+
+// EmergencyContact
+
+export interface Contact {
+    id: number;
+    name: string;
+    relationship: string;
+    phone: string;
+    email: string;
+}
+
+export interface ContactsState {
+    contacts: Contact[];
+    status: 'idle' | 'loading' | 'failed';
+    error: string | null;
 }
