@@ -1,5 +1,32 @@
+//{
+//  "files": [],
+//  "references": [
+//    { "path": "./tsconfig.app.json" },
+//    { "path": "./tsconfig.node.json" },
+//
+//  ]
+//}
 {
-  "files": [],
+  "compilerOptions": {
+    "target": "ESNext",                       // Target modern JavaScript features
+    "module": "ESNext",                       // Use ES module syntax
+    "lib": ["DOM", "DOM.Iterable", "ESNext"], // Include DOM and ES features
+    "allowJs": true,                          // Allow JavaScript files
+    "checkJs": false,                         // Skip type checking for JS files
+    "jsx": "react-jsx",                       // Use JSX syntax for React
+    "strict": true,                           // Enable strict type-checking
+    "moduleResolution": "Node",              // Resolve modules like Node.js
+    "esModuleInterop": true,                  // Enable interoperability with CommonJS modules
+    "skipLibCheck": true,                     // Skip type checks for declaration files
+    "forceConsistentCasingInFileNames": true, // Enforce case-sensitive imports
+    "baseUrl": ".",                           // Base URL for the project
+    "paths": {                                // Path alias configuration
+      "@/*": ["src/*"]
+    },
+    "outDir": "./dist"                        // Output directory for compiled files
+  },
+  "include": ["src"],                         // Include files in the src directory
+  "exclude": ["node_modules", "dist"],        // Exclude unnecessary directories
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
