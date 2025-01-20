@@ -37,3 +37,40 @@ export interface User {
     weeklyActivityGoal: number;
     activities: ActivityItem[];
 }
+
+//GoalTracker
+
+export interface Milestone {
+    title: string;
+    completed: boolean;
+}
+
+export interface Goal {
+    id: number;
+    title: string;
+    category: string;
+    target: string;
+    progress: number;
+    deadline: string;
+    status: 'On Track' | 'Ahead' | 'Behind';
+    milestones: Milestone[];
+    createdAt: string;
+}
+
+export interface Achievement {
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    date: string;
+}
+
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    streak: number;
+    achievementPoints: number;
+    goals: Goal[];
+    achievements: Achievement[];
+}

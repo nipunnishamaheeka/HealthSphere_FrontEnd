@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -21,11 +21,12 @@ import { Calendar as CalendarIcon, Plus, X } from 'lucide-react';
 import { Calendar } from './common/Celender';
 import { Popover, PopoverContent, PopoverTrigger } from './common/Popover';
 import { format } from 'date-fns';
+import {Goal} from "@/types/type";
 
 interface AddGoalModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAddGoal: (goal: Omit<Goal, 'id'>) => void;
+    onAddGoal: (goal: Omit<Goal, 'id' | 'createdAt'>) => void;
 }
 
 const AddGoalModal: React.FC<AddGoalModalProps> = ({ isOpen, onClose, onAddGoal }) => {

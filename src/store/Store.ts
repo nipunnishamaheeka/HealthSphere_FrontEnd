@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import  mealPlannerReducer  from './slices/MealPlannerSlice';
-
+import goalReducer from './slices/GoalSlice';
 import activityReducer from './slices/ActivitySlice';
 export const store = configureStore({
     reducer: {
@@ -10,6 +10,7 @@ export const store = configureStore({
         // healthLogs: healthLogReducer,
         mealPlanner: mealPlannerReducer,
         activity: activityReducer,
+        goal: goalReducer,
     },
 });
 
