@@ -1,93 +1,36 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
-import {
-    Users, Calendar, MessageSquare, Activity,
-    ChevronRight, Search, Plus, MoreVertical,
-    TrendingUp, AlertCircle
-} from 'lucide-react';
-import AddTrainerPopups from '../components/TrainerAddButton'
-interface Client {
-    name: string;
-    plan: string;
-    progress: number;
-    nextSession: string;
-    alerts: number;
-    metrics: {
-        attendance: string;
-        completion: string;
-        engagement: string;
-    };
-}
-
-interface Session {
-    client: string;
-    type: string;
-    time: string;
-    duration: string;
-}
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../store/Store';
+import { addClient, deleteClient } from '../store/slices/TrainerSlice';
+import { Card, CardContent, CardHeader, CardTitle } from "../components/common/Card";
+import { Users, Calendar, MessageSquare, Activity, ChevronRight, Search, Plus, MoreVertical, TrendingUp, AlertCircle } from 'lucide-react';
+// import AddTrainerPopups from '../components/TrainerAddButton'; // Ensure this is imported correctly
 
 const TrainerDashboard: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<string>('clients');
+    const dispatch = useDispatch<AppDispatch>();
+    const clients = useSelector((state: RootState) => state.trainer.clients);
 
-    const clients: Client[] = [
-        {
-            name: 'Sarah Johnson',
-            plan: 'Weight Loss Program',
-            progress: 68,
-            nextSession: '2024-01-16 10:00 AM',
-            alerts: 2,
-            metrics: {
-                attendance: '90%',
-                completion: '85%',
-                engagement: '95%'
-            }
-        },
-        {
-            name: 'Mike Thompson',
-            plan: 'Muscle Gain Program',
-            progress: 75,
-            nextSession: '2024-01-16 2:00 PM',
+    // Mock upcoming sessions data
+    const upcomingSessions = [
+        { client: 'John Doe', type: 'Personal Training', time: '10:00 AM', duration: '1 Hour' },
+        { client: 'Jane Smith', type: 'Group Training', time: '1:00 PM', duration: '2 Hours' },
+    ];
+
+    const handleAddClient = () => {
+        dispatch(addClient({
+            id: '4',
+            name: 'New Client',
+            plan: 'New Plan',
+            progress: 50,
+            nextSession: '2024-02-01 10:00 AM',
             alerts: 0,
-            metrics: {
-                attendance: '95%',
-                completion: '88%',
-                engagement: '92%'
-            }
-        },
-        {
-            name: 'Emily Davis',
-            plan: 'Fitness Maintenance',
-            progress: 82,
-            nextSession: '2024-01-17 11:00 AM',
-            alerts: 1,
-            metrics: {
-                attendance: '85%',
-                completion: '90%',
-                engagement: '88%'
-            }
-        }
-    ];
+            metrics: { attendance: '100%', completion: '50%', engagement: '75%' },
+        }));
+    };
 
-    const upcomingSessions: Session[] = [
-        {
-            client: 'Sarah Johnson',
-            type: 'Personal Training',
-            time: '10:00 AM',
-            duration: '60 min'
-        },
-        {
-            client: 'Mike Thompson',
-            type: 'Progress Review',
-            time: '2:00 PM',
-            duration: '30 min'
-        },
-        {
-            client: 'Group Session',
-            type: 'HIIT Workout',
-            time: '4:00 PM',
-            duration: '45 min'
-        }
-    ];
+    const handleDeleteClient = (id: string) => {
+        dispatch(deleteClient(id));
+    };
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -100,10 +43,11 @@ const TrainerDashboard: React.FC = () => {
                             <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                                 <Plus className="h-5 w-5" />
                             </button>
-                            <AddTrainerPopups />
+                            {/* Ensure AddTrainerPopups is correctly imported */}
+                            {/* <AddTrainerPopups /> */}
                             <img
                                 className="h-8 w-8 rounded-full"
-                                src="/api/placeholder/32/32"
+                                src="https://d1csarkz8obe9u.cloudfront.net/posterpreviews/fitness-logo%2C-gym-logo%2C-fitness-center-logo-design-template-ee502c447776d7537ac35f02d0efa0ac_screen.jpg?ts=1669138823"
                                 alt="Trainer profile"
                             />
                         </div>
@@ -115,50 +59,25 @@ const TrainerDashboard: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Stats Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                    <Card>
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-500">Total Clients</p>
-                                    <p className="text-2xl font-bold">24</p>
+                    {/* Stats Cards */}
+                    {[
+                        { label: 'Total Clients', value: 24, icon: Users, color: 'blue' },
+                        { label: "Today's Sessions", value: 6, icon: Calendar, color: 'green' },
+                        { label: 'Active Programs', value: 8, icon: Activity, color: 'purple' },
+                        { label: 'Messages', value: 12, icon: MessageSquare, color: 'orange' },
+                    ].map((stat, idx) => (
+                        <Card key={idx}>
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm text-gray-500">{stat.label}</p>
+                                        <p className="text-2xl font-bold">{stat.value}</p>
+                                    </div>
+                                    <stat.icon className={`h-8 w-8 text-${stat.color}-500`} />
                                 </div>
-                                <Users className="h-8 w-8 text-blue-500" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-500">Today's Sessions</p>
-                                    <p className="text-2xl font-bold">6</p>
-                                </div>
-                                <Calendar className="h-8 w-8 text-green-500" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-500">Active Programs</p>
-                                    <p className="text-2xl font-bold">8</p>
-                                </div>
-                                <Activity className="h-8 w-8 text-purple-500" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-500">Messages</p>
-                                    <p className="text-2xl font-bold">12</p>
-                                </div>
-                                <MessageSquare className="h-8 w-8 text-orange-500" />
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
 
                 {/* Client List */}
@@ -174,19 +93,19 @@ const TrainerDashboard: React.FC = () => {
                                     className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
-                            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            <button onClick={handleAddClient} className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                                 Add Client
                             </button>
                         </div>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {clients.map((client, index) => (
-                                <div key={index} className="bg-gray-50 rounded-lg p-4">
+                            {clients.map(client => (
+                                <div key={client.id} className="bg-gray-50 rounded-lg p-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center space-x-4">
                                             <img
-                                                src="/api/placeholder/40/40"
+                                                src="https://via.placeholder.com/40"
                                                 alt={client.name}
                                                 className="h-10 w-10 rounded-full"
                                             />
@@ -218,7 +137,10 @@ const TrainerDashboard: React.FC = () => {
                                                     <span>{client.alerts}</span>
                                                 </div>
                                             )}
-                                            <button className="p-2 hover:bg-gray-200 rounded-full">
+                                            <button
+                                                onClick={() => handleDeleteClient(client.id)}
+                                                className="p-2 hover:bg-gray-200 rounded-full"
+                                            >
                                                 <MoreVertical className="h-5 w-5 text-gray-500" />
                                             </button>
                                         </div>
@@ -238,8 +160,8 @@ const TrainerDashboard: React.FC = () => {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    {upcomingSessions.map((session, index) => (
-                                        <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    {upcomingSessions.map((session, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                             <div className="flex items-center space-x-4">
                                                 <Calendar className="h-6 w-6 text-blue-500" />
                                                 <div>
@@ -274,20 +196,21 @@ const TrainerDashboard: React.FC = () => {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                                    <div className="flex items-center space-x-3">
-                                        <Plus className="h-5 w-5 text-blue-500" />
-                                        <span className="font-medium">Add New Client</span>
-                                    </div>
-                                    <ChevronRight className="h-5 w-5 text-gray-500" />
-                                </button>
-                                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
-                                    <div className="flex items-center space-x-3">
-                                        <TrendingUp className="h-5 w-5 text-green-500" />
-                                        <span className="font-medium">Track Client Progress</span>
-                                    </div>
-                                    <ChevronRight className="h-5 w-5 text-gray-500" />
-                                </button>
+                                {[
+                                    { label: 'Add New Client', icon: Plus },
+                                    { label: 'Track Client Progress', icon: TrendingUp },
+                                ].map((action, idx) => (
+                                    <button
+                                        key={idx}
+                                        className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            <action.icon className="h-5 w-5 text-blue-500" />
+                                            <span className="font-medium">{action.label}</span>
+                                        </div>
+                                        <ChevronRight className="h-5 w-5 text-gray-500" />
+                                    </button>
+                                ))}
                             </div>
                         </CardContent>
                     </Card>

@@ -130,3 +130,35 @@ export interface HealthState {
 export interface RootState {
     health: HealthState;
 }
+
+//Trainer
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    profileImage?: string;
+    totalClients: number;
+    todaySessions: number;
+    activePrograms: number;
+    unreadMessages: number;
+}
+
+export interface Client {
+    name: string;
+    plan: string;
+    progress: number;
+    nextSession: string;
+    alerts: number;
+    metrics: {
+        attendance: string;
+        completion: string;
+        engagement: string;
+    };
+}
+
+export interface Session {
+    client: string;
+    type: string;
+    time: string;
+    duration: string;
+}
