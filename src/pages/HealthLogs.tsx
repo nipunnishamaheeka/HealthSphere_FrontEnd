@@ -1,60 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
-import { Heart, Droplets, Moon, Weight } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../types/hooks';
+import { updateFormData, resetFormData, addHealthLog } from '../store/slices/HealthSlice';
+const HealthLogs: React.FC = () => {
+    const dispatch = useAppDispatch();
+    const { metrics, logs, formData } = useAppSelector(state => state.health);
 
-const HealthLogs = () => {
-    // State for form inputs
-    const [formData, setFormData] = useState({
-        weight: '',
-        systolic: '',
-        diastolic: '',
-        sleepHours: '',
-        waterIntake: ''
-    });
-
-    // State for past logs
-    const [pastLogs, setPastLogs] = useState([]);
-
-    const healthMetrics = [
-        {
-            icon: Weight,
-            label: 'Weight',
-            value: '75.5 kg',
-            trend: '+0.5 kg this week',
-            color: 'text-purple-500',
-        },
-        {
-            icon: Heart,
-            label: 'Blood Pressure',
-            value: '120/80',
-            trend: 'Normal range',
-            color: 'text-green-500',
-        },
-        {
-            icon: Moon,
-            label: 'Sleep',
-            value: '7h 23m',
-            trend: '30min less than usual',
-            color: 'text-blue-500',
-        },
-        {
-            icon: Droplets,
-            label: 'Water Intake',
-            value: '2.4L',
-            trend: '80% of daily goal',
-            color: 'text-cyan-500',
-        },
-    ];
-
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        dispatch(updateFormData({ field: name as keyof typeof formData, value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
         const newLog = {
@@ -66,22 +23,14 @@ const HealthLogs = () => {
             waterIntake: formData.waterIntake,
         };
 
-        setPastLogs(prev => [newLog, ...prev]);
-
-        // Reset form
-        setFormData({
-            weight: '',
-            systolic: '',
-            diastolic: '',
-            sleepHours: '',
-            waterIntake: ''
-        });
+        dispatch(addHealthLog(newLog));
+        dispatch(resetFormData());
     };
 
     return (
         <div className="space-y-6 p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {healthMetrics.map((metric, index) => (
+                {metrics.map((metric, index) => (
                     <Card key={index}>
                         <CardContent className="pt-6">
                             <div className="flex flex-col items-center text-center">
@@ -186,7 +135,7 @@ const HealthLogs = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {pastLogs.map((log) => (
+                            {logs.map((log) => (
                                 <tr key={log.id} className="border-b">
                                     <td className="px-4 py-2">{log.date}</td>
                                     <td className="px-4 py-2">{log.weight}</td>

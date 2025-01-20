@@ -91,3 +91,42 @@ export interface ContactsState {
     status: 'idle' | 'loading' | 'failed';
     error: string | null;
 }
+
+//HealthLogs
+
+export interface HealthMetric {
+    icon: any;
+    label: string;
+    value: string;
+    trend: string;
+    color: string;
+}
+
+export interface HealthLog {
+    id: number;
+    date: string;
+    weight: string;
+    bloodPressure: string;
+    sleepHours: string;
+    waterIntake: string;
+}
+
+export interface HealthFormData {
+    weight: string;
+    systolic: string;
+    diastolic: string;
+    sleepHours: string;
+    waterIntake: string;
+}
+
+export interface HealthState {
+    metrics: HealthMetric[];
+    logs: HealthLog[];
+    formData: HealthFormData;
+    status: 'idle' | 'loading' | 'failed';
+    error: string | null;
+}
+
+export interface RootState {
+    health: HealthState;
+}

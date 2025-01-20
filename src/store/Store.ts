@@ -3,16 +3,14 @@ import  mealPlannerReducer  from './slices/MealPlannerSlice';
 import goalReducer from './slices/GoalSlice';
 import activityReducer from './slices/ActivitySlice';
 import contactsReducer from './slices/ContactsSlice';
+import healthReducer from './slices/HealthSlice';
 export const store = configureStore({
     reducer: {
-        // // users: usersReducer,
-        // // editUserForm: editUserFormReducer,
-        // trainer: trainersReducer,
-        // healthLogs: healthLogReducer,
         mealPlanner: mealPlannerReducer,
         activity: activityReducer,
         goal: goalReducer,
-        contacts: contactsReducer
+        contacts: contactsReducer,
+        health: healthReducer
     },
 });
 
