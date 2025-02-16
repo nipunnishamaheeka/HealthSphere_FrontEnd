@@ -1,107 +1,118 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { HealthState, HealthLog, HealthFormData } from '../../types/type';
-import { Heart, Droplets, Moon, Weight } from 'lucide-react';
+import { HealthLogModel } from "../../model/HealthModel";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const initialState: HealthState = {
-    metrics: [
-        {
-            icon: Weight,
-            label: 'Weight',
-            value: '75.5 kg',
-            trend: '+0.5 kg this week',
-            color: 'text-purple-500',
-        },
-        {
-            icon: Heart,
-            label: 'Blood Pressure',
-            value: '120/80',
-            trend: 'Normal range',
-            color: 'text-green-500',
-        },
-        {
-            icon: Moon,
-            label: 'Sleep',
-            value: '7h 23m',
-            trend: '30min less than usual',
-            color: 'text-blue-500',
-        },
-        {
-            icon: Droplets,
-            label: 'Water Intake',
-            value: '2.4L',
-            trend: '80% of daily goal',
-            color: 'text-cyan-500',
-        },
-    ],
-    logs: [],
-    formData: {
-        weight: '',
-        systolic: '',
-        diastolic: '',
-        sleepHours: '',
-        waterIntake: ''
-    },
-    status: 'idle',
-    error: null
-};
+export const initialState: HealthLogModel[] = [];
 
-const healthSlice = createSlice({
-    name: 'health',
-    initialState,
-    reducers: {
-        updateFormData: (state, action: PayloadAction<{ field: keyof HealthFormData; value: string }>) => {
-            state.formData[action.payload.field] = action.payload.value;
-        },
-        resetFormData: (state) => {
-            state.formData = initialState.formData;
-        },
-        addHealthLog: (state, action: PayloadAction<HealthLog>) => {
-            state.logs.unshift(action.payload);
-            // Update metrics based on latest log
-            state.metrics = state.metrics.map(metric => {
-                switch (metric.label) {
-                    case 'Weight':
-                        return {
-                            ...metric,
-                            value: `${action.payload.weight} kg`
-                        };
-                    case 'Blood Pressure':
-                        return {
-                            ...metric,
-                            value: action.payload.bloodPressure
-                        };
-                    case 'Sleep':
-                        return {
-                            ...metric,
-                            value: `${action.payload.sleepHours}h`
-                        };
-                    case 'Water Intake':
-                        return {
-                            ...metric,
-                            value: `${action.payload.waterIntake}L`
-                        };
-                    default:
-                        return metric;
-                }
-            });
-        },
-        setError: (state, action: PayloadAction<string>) => {
-            state.status = 'failed';
-            state.error = action.payload;
-        },
-        clearError: (state) => {
-            state.status = 'idle';
-            state.error = null;
-        }
-    }
+const api = axios.create({
+    baseURL: "http://localhost:3000/healthlog",
 });
 
-export const {
-    updateFormData,
-    resetFormData,
-    addHealthLog,
-    setError,
-    clearError
-} = healthSlice.actions;
+// ** Get all health logs **
+export const getHealthLogs = createAsyncThunk(
+    "health/getHealthLogs",
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get("/get");
+            console.log("Fetched Health Logs:", response.data);
+            return response.data as HealthLogModel[];
+        } catch (err: any) {
+            console.error("Error fetching health logs:", err);
+            return rejectWithValue(err.response?.data || "Failed to fetch health logs");
+        }
+    }
+);
+
+// ** Save a health log **
+export const saveHealthLog = createAsyncThunk(
+    "health/saveHealthLog",
+    async (healthLog: HealthLogModel, { rejectWithValue }) => {
+        try {
+            const response = await api.post("/post", healthLog);
+            console.log("Saved Health Log:", response.data);
+            return response.data as HealthLogModel;
+        } catch (error: any) {
+            console.error("Error saving health log:", error);
+            return rejectWithValue(error.response?.data || "Failed to save health log");
+        }
+    }
+);
+
+// ** Update a health log **
+export const updateHealthLog = createAsyncThunk(
+    "health/updateHealthLog",
+    async (healthLog: HealthLogModel, { rejectWithValue }) => {
+        try {
+            const response = await api.put(`/update/${healthLog.log_id}`, healthLog);
+            console.log("Updated Health Log:", response.data);
+            return response.data as HealthLogModel;
+        } catch (err: any) {
+            console.error("Error updating health log:", err);
+            return rejectWithValue(err.response?.data || "Failed to update health log");
+        }
+    }
+);
+
+// ** Delete a health log **
+export const deleteHealthLog = createAsyncThunk(
+    "health/deleteHealthLog",
+    async (log_id: string, { rejectWithValue }) => {
+        try {
+            await api.delete(`/delete/${log_id}`);
+            console.log(`Deleted Health Log with log_id: ${log_id}`);
+            return log_id;
+        } catch (err: any) {
+            console.error("Error deleting health log:", err);
+            return rejectWithValue(err.response?.data || "Failed to delete health log");
+        }
+    }
+);
+
+// ** Health Slice **
+const healthSlice = createSlice({
+    name: "health",
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(getHealthLogs.fulfilled, (state, action: PayloadAction<HealthLogModel[]>) => {
+                console.log("Health Logs successfully fetched:", action.payload);
+                return action.payload;
+            })
+            .addCase(getHealthLogs.rejected, (_, action) => {
+                console.error("Failed to fetch health logs:", action.payload);
+            });
+
+        builder
+            .addCase(saveHealthLog.fulfilled, (state, action: PayloadAction<HealthLogModel>) => {
+                console.log("Health log saved successfully:", action.payload);
+                state.push(action.payload);
+            })
+            .addCase(saveHealthLog.rejected, (_, action) => {
+                console.error("Failed to save health log:", action.payload);
+            });
+
+        builder
+            .addCase(updateHealthLog.fulfilled, (state, action: PayloadAction<HealthLogModel>) => {
+                const index = state.findIndex((log) => log.log_id === action.payload.log_id);
+                if (index !== -1) {
+                    console.log("Health log updated successfully:", action.payload);
+                    state[index] = action.payload;
+                }
+            })
+            .addCase(updateHealthLog.rejected, (_, action) => {
+                console.error("Failed to update health log:", action.payload);
+            });
+
+        builder
+            .addCase(deleteHealthLog.fulfilled, (state, action: PayloadAction<string>) => {
+                console.log(`Health log with log_id ${action.payload} deleted successfully`);
+                return state.filter((log) => log.log_id !== action.payload);
+            })
+            .addCase(deleteHealthLog.rejected, (_, action) => {
+                console.error("Failed to delete health log:", action.payload);
+            });
+    },
+});
 
 export default healthSlice.reducer;

@@ -103,7 +103,7 @@ export interface HealthMetric {
 }
 
 export interface HealthLog {
-    id: number;
+    id: string;
     date: string;
     weight: string;
     bloodPressure: string;
@@ -123,7 +123,7 @@ export interface HealthState {
     metrics: HealthMetric[];
     logs: HealthLog[];
     formData: HealthFormData;
-    status: 'idle' | 'loading' | 'failed';
+    status: 'idle' | 'loading' | 'failed' |'succeeded';
     error: string | null;
 }
 
