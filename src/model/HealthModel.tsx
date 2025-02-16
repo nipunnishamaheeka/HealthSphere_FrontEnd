@@ -1,27 +1,27 @@
 export class HealthLogModel {
-    log_id: string;
+    id: string;
     user_id: string;
     date: Date;
     weight: number;
-    blood_pressure: string;
-    sleep_hours: number;
-    water_intake: number;
+    bloodPressure: string;
+    sleepHours: number;
+    waterIntake: number;
 
     constructor(
-        log_id: string,
+        id: string,
         user_id: string,
         date: Date,
         weight: number,
-        blood_pressure: string,
-        sleep_hours: number,
-        water_intake: number
+        bloodPressure: string,
+        sleepHours: number,
+        waterIntake: number
     ) {
-        this.log_id = log_id;
+        this.id = id;
         this.user_id = user_id;
         this.date = date;
         this.weight = weight;
-        this.blood_pressure = blood_pressure;
-        this.sleep_hours = sleep_hours
-        this.water_intake = water_intake;
+        this.bloodPressure = bloodPressure;
+        this.sleepHours = sleepHours
+        this.waterIntake = waterIntake;
     }
 }

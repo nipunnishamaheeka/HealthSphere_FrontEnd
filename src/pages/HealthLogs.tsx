@@ -47,22 +47,22 @@ const HealthLogs: React.FC = () => {
             {
                 icon: Heart,
                 label: "Blood Pressure",
-                value: lastLog.blood_pressure,
+                value: lastLog.bloodPressure,
                 trend: "Latest reading",
                 color: "text-red-500"
             },
             {
                 icon: Moon,
                 label: "Sleep",
-                value: `${lastLog.sleep_hours}h`,
-                trend: previousLog ? calculateTrend(lastLog.sleep_hours, previousLog.sleep_hours) : "No previous data",
+                value: `${lastLog.sleepHours}h`,
+                trend: previousLog ? calculateTrend(lastLog.sleepHours, previousLog.sleepHours) : "No previous data",
                 color: "text-purple-500"
             },
             {
                 icon: Droplets,
                 label: "Water Intake",
-                value: `${lastLog.water_intake}L`,
-                trend: previousLog ? calculateTrend(lastLog.water_intake, previousLog.water_intake) : "No previous data",
+                value: `${lastLog.waterIntake}L`,
+                trend: previousLog ? calculateTrend(lastLog.waterIntake, previousLog.waterIntake) : "No previous data",
                 color: "text-cyan-500"
             }
         ];
@@ -221,18 +221,18 @@ const HealthLogs: React.FC = () => {
                             </thead>
                             <tbody>
                             {healthLogs.map((log, index) => (
-                                <tr key={log.log_id || `log-${index}`} className="border-b">
+                                <tr key={log.id || `log-${index}`} className="border-b">
 
                                 <td className="px-4 py-2">
                                         {new Date(log.date).toLocaleDateString()}
                                     </td>
                                     <td className="px-4 py-2">{log.weight}</td>
-                                    <td className="px-4 py-2">{log.blood_pressure}</td>
-                                    <td className="px-4 py-2">{log.sleep_hours}</td>
-                                    <td className="px-4 py-2">{log.water_intake}</td>
+                                    <td className="px-4 py-2">{log.bloodPressure}</td>
+                                    <td className="px-4 py-2">{log.sleepHours}</td>
+                                    <td className="px-4 py-2">{log.waterIntake}</td>
                                     <td className="px-4 py-2">
                                         <button
-                                            onClick={() => handleDelete(log.log_id)}
+                                            onClick={() => handleDelete(log.id)}
                                             className="text-red-500 hover:text-red-700"
                                         >
                                             <Trash2 className="h-4 w-4" />
