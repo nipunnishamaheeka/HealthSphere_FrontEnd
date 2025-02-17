@@ -1,127 +1,139 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ActivityItem, User } from '../../types/type';
-
-interface ActivityState {
-    user: User | null;
-    activities: ActivityItem[];
-    weeklyProgress: {
-        [key: string]: {
-            calories: number;
-            duration: number;
-            count: number;
-        };
-    };
-    isLoading: boolean;
-    error: string | null;
-}
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { ActivityTrackerModel, ActivityState, ActivityFormData } from "../../types/ActivityTypes";
 
 const initialState: ActivityState = {
-    user: null,
-    activities: [
-        {
-            id: '1',
-            type: 'Morning Run',
-            duration: '30 min',
-            distance: '3.2 km',
-            calories: 320,
-            time: '7:00 AM',
-            date: new Date().toISOString(),
-        },
-        {
-            id: '2',
-            type: 'Yoga Session',
-            duration: '45 min',
-            calories: 180,
-            time: '12:30 PM',
-            date: new Date().toISOString(),
-        },
-        {
-            id: '3',
-            type: 'Weight Training',
-            duration: '60 min',
-            calories: 440,
-            time: '5:30 PM',
-            date: new Date().toISOString(),
-        },
-    ],
+    activities: [],
     weeklyProgress: {},
     isLoading: false,
     error: null,
 };
 
-const activitySlice = createSlice({
-    name: 'activity',
-    initialState,
-    reducers: {
-        setUser: (state, action: PayloadAction<User>) => {
-            state.user = action.payload;
-        },
-        addActivity: (state, action: PayloadAction<ActivityItem>) => {
-            state.activities.push(action.payload);
-            // Update weekly progress
-            const date = new Date(action.payload.date).toISOString().split('T')[0];
-            if (!state.weeklyProgress[date]) {
-                state.weeklyProgress[date] = {
-                    calories: 0,
-                    duration: 0,
-                    count: 0,
-                };
-            }
-            state.weeklyProgress[date].calories += action.payload.calories;
-            state.weeklyProgress[date].duration += parseInt(action.payload.duration);
-            state.weeklyProgress[date].count += 1;
-        },
-        deleteActivity: (state, action: PayloadAction<string>) => {
-            const activity = state.activities.find(a => a.id === action.payload);
-            if (activity) {
-                const date = new Date(activity.date).toISOString().split('T')[0];
-                state.weeklyProgress[date].calories -= activity.calories;
-                state.weeklyProgress[date].duration -= parseInt(activity.duration);
-                state.weeklyProgress[date].count -= 1;
-            }
-            state.activities = state.activities.filter(activity => activity.id !== action.payload);
-        },
-        updateActivity: (state, action: PayloadAction<ActivityItem>) => {
-            const index = state.activities.findIndex(activity => activity.id === action.payload.id);
-            if (index !== -1) {
-                state.activities[index] = action.payload;
-            }
-        },
-        setLoading: (state, action: PayloadAction<boolean>) => {
-            state.isLoading = action.payload;
-        },
-        setError: (state, action: PayloadAction<string | null>) => {
-            state.error = action.payload;
-        },
-        clearActivities: (state) => {
-            state.activities = [];
-            state.weeklyProgress = {};
-        },
+const api = axios.create({
+    baseURL: "http://localhost:3000/activitytracker",
+    headers: {
+        'Content-Type': 'application/json',
     },
 });
 
-export const {
-    setUser,
-    addActivity,
-    deleteActivity,
-    updateActivity,
-    setLoading,
-    setError,
-    clearActivities,
-} = activitySlice.actions;
 
+
+// Fixed thunk definitions with proper types
+export const fetchActivities = createAsyncThunk<
+    ActivityTrackerModel[],
+    void,
+    { rejectValue: string }
+>("activity/fetchActivities", async (_, { rejectWithValue }) => {
+    try {
+        const { data } = await api.get("/get");
+        return data.map((activity: ActivityTrackerModel) => ({
+            ...activity,
+            date: new Date(activity.date)
+        }));
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || "Failed to fetch activities");
+    }
+});
+
+export const saveActivity = createAsyncThunk<
+    ActivityTrackerModel,
+    ActivityFormData,
+    { rejectValue: string }
+>("activity/saveActivity", async (activity, { rejectWithValue }) => {
+    try {
+        const { data } = await api.post("/post", activity);
+        return {
+            ...data,
+            date: new Date(data.date)
+        };
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || "Failed to save activity");
+    }
+});
+
+export const updateActivity = createAsyncThunk<
+    ActivityTrackerModel,
+    ActivityTrackerModel,
+    { rejectValue: string }
+>("activity/updateActivity", async (activity, { rejectWithValue }) => {
+    try {
+        const { data } = await api.patch(`/put${activity.activity_id}`, activity);
+        return {
+            ...data,
+            date: new Date(data.date)
+        };
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || "Failed to update activity");
+    }
+});
+
+export const deleteActivity = createAsyncThunk<
+    string,
+    string,
+    { rejectValue: string }
+>("activity/deleteActivity", async (id, { rejectWithValue }) => {
+    try {
+        await api.delete(`/delete${id}`);
+        return id;
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || "Failed to delete activity");
+    }
+});
+
+const activitySlice = createSlice({
+    name: "activity",
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchActivities.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchActivities.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.activities = action.payload;
+                state.weeklyProgress = {};
+                action.payload.forEach(({ date, calories_burned, duration }) => {
+                    const formattedDate = date.toISOString().split("T")[0];
+                    if (!state.weeklyProgress[formattedDate]) {
+                        state.weeklyProgress[formattedDate] = { calories: 0, duration: 0, count: 0 };
+                    }
+                    state.weeklyProgress[formattedDate].calories += calories_burned;
+                    state.weeklyProgress[formattedDate].duration += duration;
+                    state.weeklyProgress[formattedDate].count += 1;
+                });
+            })
+            .addCase(fetchActivities.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload || "Failed to fetch activities";
+            })
+            .addCase(saveActivity.fulfilled, (state, action) => {
+                state.activities.push(action.payload);
+            })
+            .addCase(updateActivity.fulfilled, (state, action) => {
+                const index = state.activities.findIndex(
+                    ({ activity_id }) => activity_id === action.payload.activity_id
+                );
+                if (index !== -1) {
+                    state.activities[index] = action.payload;
+                }
+            })
+            .addCase(deleteActivity.fulfilled, (state, action) => {
+                state.activities = state.activities.filter(
+                    ({ activity_id }) => activity_id !== action.payload
+                );
+            });
+    },
+});
+
+// Selectors with proper types
 export const selectTotalCalories = (state: { activity: ActivityState }) =>
-    state.activity.activities.reduce((sum, activity) => sum + activity.calories, 0);
+    state.activity.activities.reduce((sum, { calories_burned }) => sum + calories_burned, 0);
 
 export const selectTotalActiveTime = (state: { activity: ActivityState }) => {
-    const totalMinutes = state.activity.activities.reduce((sum, activity) => {
-        const duration = parseInt(activity.duration);
-        return sum + (isNaN(duration) ? 0 : duration);
-    }, 0);
-
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    return `${hours}h ${minutes}m`;
+    const totalMinutes = state.activity.activities.reduce((sum, { duration }) => sum + duration, 0);
+    return `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
 };
 
 export const selectWeeklyProgress = (state: { activity: ActivityState }) =>
