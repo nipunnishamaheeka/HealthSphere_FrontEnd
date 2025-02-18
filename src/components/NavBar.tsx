@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { Menu, X, User, LogOut, Settings, LayoutDashboard, Activity, Dumbbell, Heart, Coffee, Target, Users, BarChart, Moon, Sun } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, LayoutDashboard, Activity, Dumbbell, Heart, Coffee, Target, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../components/Theme/ThemeContext';
 import { Dashboard } from '../pages/Dashboard';
 import ActivityTracker from "../pages/ActivityTracker";
 import MealPlan from "../pages/MealPlan";
 import GoalSetting from "../pages/GoalSetting";
 import EmergencyContact from "../pages/EmergencyContact";
-import Community from "../pages/Community";
-import InsightsAndAnalytics from "../pages/InsightsAndAnalytics";
 import HealthLogs from "../pages/HealthLogs";
 import Trainer from "../pages/Trainer";
 
@@ -36,8 +34,8 @@ export const NavBar = () => {
         { id: 'ActivityItem', label: 'Activity Tracker', icon: Activity, component: <ActivityTracker /> },
         { id: 'Meal', label: 'Meal Plan', icon: Coffee, component: <MealPlan /> },
         { id: 'Goal', label: 'Goal Setting', icon: Target, component: <GoalSetting /> },
-        { id: 'Group', label: 'Community', icon: Users, component: <Community /> },
-        { id: 'WeeklyData', label: 'Analytics', icon: BarChart, component: <InsightsAndAnalytics /> },
+        // { id: 'Group', label: 'Community', icon: Users, component: <Community /> },
+        // { id: 'WeeklyData', label: 'Analytics', icon: BarChart, component: <InsightsAndAnalytics /> },
         { id: 'Contact', label: 'Emergency Contact', icon: User, component: <EmergencyContact /> },
     ];
 

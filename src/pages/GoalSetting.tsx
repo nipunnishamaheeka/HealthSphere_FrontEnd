@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
 import {
     Target,
@@ -6,7 +6,6 @@ import {
     Calendar,
     Award,
     Plus,
-    ChevronRight,
     MoreVertical,
     CheckCircle2,
     Trophy,
@@ -14,13 +13,18 @@ import {
 import AddGoalModal from "../components/GoalModelPopup";
 import { useAppDispatch, useAppSelector } from '../types/hooks';
 import {
-    addGoal,
+    fetchGoals,
+    createGoal,
     deleteGoal,
+    updateGoal,
     toggleMilestone,
-    selectStats
+    selectStats,
+    selectGoals,
+    selectAchievements
 } from '../store/slices/GoalSlice';
-import type { Goal } from '../types/type';
+import type { Goal, Achievement } from '../types/type';
 
+// StatsCard Component
 interface StatsCardProps {
     title: string;
     value: string | number;
@@ -44,11 +48,14 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon, iconColor }) 
     </Card>
 );
 
-const MilestoneList: React.FC<{
+// MilestoneList Component
+interface MilestoneListProps {
     milestones: { title: string; completed: boolean }[];
     goalId: number;
     onToggle: (index: number) => void;
-}> = ({ milestones, goalId, onToggle }) => (
+}
+
+const MilestoneList: React.FC<MilestoneListProps> = ({ milestones, goalId, onToggle }) => (
     <div className="border-t pt-4">
         <h4 className="text-sm font-medium mb-2">Milestones</h4>
         <div className="space-y-2">
@@ -76,16 +83,19 @@ const MilestoneList: React.FC<{
     </div>
 );
 
-const GoalCard: React.FC<{
+// GoalCard Component
+interface GoalCardProps {
     goal: Goal;
     onDelete: (id: number) => void;
     onToggleMilestone: (goalId: number, index: number) => void;
-}> = ({ goal, onDelete, onToggleMilestone }) => (
+}
+
+const GoalCard: React.FC<GoalCardProps> = ({ goal, onDelete, onToggleMilestone }) => (
     <div className="bg-gray-50 rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
             <div>
-                <h3 className="text-lg font-medium">{goal.title}</h3>
-                <p className="text-sm text-gray-500">{goal.category}</p>
+                <h3 className="text-lg font-medium">Test{goal.title}</h3>
+                <p className="text-sm text-gray-500">Test{goal.category}</p>
             </div>
             <div className="flex items-center space-x-4">
                 <span
@@ -140,54 +150,94 @@ const GoalCard: React.FC<{
     </div>
 );
 
-const AchievementSection: React.FC = () => {
-    const achievements = useAppSelector(state => state.goal.achievements);
+// AchievementSection Component
+interface AchievementSectionProps {
+    achievements: Achievement[];
+}
 
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Recent Achievements</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {achievements.map((achievement) => (
-                        <div key={achievement.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                            <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                                <Trophy className="h-6 w-6 text-yellow-600" />
-                            </div>
-                            <div>
-                                <h4 className="font-medium">{achievement.title}</h4>
-                                <p className="text-sm text-gray-500">{achievement.description}</p>
-                                <p className="text-xs text-gray-400 mt-1">
-                                    Achieved on {new Date(achievement.date).toLocaleDateString()}
-                                </p>
-                            </div>
+const AchievementSection: React.FC<AchievementSectionProps> = ({ achievements }) => (
+    <Card>
+        <CardHeader>
+            <CardTitle>Recent Achievements</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {achievements.map((achievement) => (
+                    <div key={achievement.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <Trophy className="h-6 w-6 text-yellow-600" />
                         </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
-    );
-};
+                        <div>
+                            <h4 className="font-medium">{achievement.title}</h4>
+                            <p className="text-sm text-gray-500">{achievement.description}</p>
+                            <p className="text-xs text-gray-400 mt-1">
+                                Achieved on {new Date(achievement.date).toLocaleDateString()}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </CardContent>
+    </Card>
+);
 
+// Main GoalSetting Component
 const GoalSetting: React.FC = () => {
     const dispatch = useAppDispatch();
-    const goals = useAppSelector(state => state.goal.goals);
+    const goals = useAppSelector(selectGoals);
+    const achievements = useAppSelector(selectAchievements);
     const stats = useAppSelector(selectStats);
+    const isLoading = useAppSelector(state => state.goal.isLoading);
+    const error = useAppSelector(state => state.goal.error);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-    const handleAddGoal = (newGoal: Omit<Goal, 'id' | 'createdAt'>) => {
-        dispatch(addGoal(newGoal));
-        setIsAddModalOpen(false);
+    useEffect(() => {
+        dispatch(fetchGoals());
+    }, [dispatch]);
+
+    const handleAddGoal = async (newGoal: Omit<Goal, 'id' | 'createdAt'>) => {
+        try {
+            await dispatch(createGoal(newGoal)).unwrap();
+            setIsAddModalOpen(false);
+        } catch (err) {
+            console.error('Failed to create goal:', err);
+        }
     };
 
-    const handleDeleteGoal = (goalId: number) => {
-        dispatch(deleteGoal(goalId));
+    const handleDeleteGoal = async (goalId: number) => {
+        try {
+            await dispatch(deleteGoal(goalId)).unwrap();
+        } catch (err) {
+            console.error('Failed to delete goal:', err);
+        }
     };
 
-    const handleToggleMilestone = (goalId: number, milestoneIndex: number) => {
-        dispatch(toggleMilestone({ goalId, milestoneIndex }));
+    const handleToggleMilestone = async (goalId: number, milestoneIndex: number) => {
+        const goal = goals.find(g => g.id === goalId);
+        if (!goal) return;
+
+        const updatedGoal = {
+            ...goal,
+            milestones: goal.milestones.map((m, i) =>
+                i === milestoneIndex ? { ...m, completed: !m.completed } : m
+            )
+        };
+
+        try {
+            await dispatch(updateGoal(updatedGoal)).unwrap();
+            dispatch(toggleMilestone({ goalId, milestoneIndex }));
+        } catch (err) {
+            console.error('Failed to update milestone:', err);
+        }
     };
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="text-red-500 text-center p-4">{error}</div>;
+    }
 
     return (
         <div className="space-y-6 p-6">
@@ -246,7 +296,7 @@ const GoalSetting: React.FC = () => {
             </Card>
 
             {/* Achievements Section */}
-            <AchievementSection />
+            <AchievementSection achievements={achievements} />
 
             {/* Add Goal Modal */}
             <AddGoalModal
