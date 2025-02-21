@@ -14,8 +14,8 @@ const HealthLogs: React.FC = () => {
         weight: '',
         systolic: '',
         diastolic: '',
-        sleep_hours: '',
-        water_intake: ''
+        sleepHours: '',
+        waterIntake: ''
     });
 
     useEffect(() => {
@@ -81,12 +81,12 @@ const HealthLogs: React.FC = () => {
         console.log("Saving health log:", formData);
         const newLog = new HealthLogModel(
             crypto.randomUUID(),
-            'user123',
+            'u12345',
             new Date(formData.date),
             Number(formData.weight),
             `${formData.systolic}/${formData.diastolic}`,
-            Number(formData.sleep_hours),
-            Number(formData.water_intake)
+            Number(formData.sleepHours),
+            Number(formData.waterIntake)
         );
 
         await dispatch(saveHealthLog(newLog));
@@ -97,8 +97,8 @@ const HealthLogs: React.FC = () => {
             weight: '',
             systolic: '',
             diastolic: '',
-            sleep_hours: '',
-            water_intake: ''
+            sleepHours: '',
+            waterIntake: ''
         });
     };
 
@@ -168,10 +168,11 @@ const HealthLogs: React.FC = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium">Sleep Hours</label>
+
                                 <input
-                                    type="number"
+                                    type="text"
                                     name="sleepHours"
-                                    value={formData.sleep_hours}
+                                    value={formData.sleepHours}
                                     onChange={handleInputChange}
                                     className="mt-1 block w-full rounded-md border p-2"
                                     placeholder="Hours of sleep"
@@ -182,7 +183,7 @@ const HealthLogs: React.FC = () => {
                                 <input
                                     type="number"
                                     name="waterIntake"
-                                    value={formData.water_intake}
+                                    value={formData.waterIntake}
                                     onChange={handleInputChange}
                                     className="mt-1 block w-full rounded-md border p-2"
                                     placeholder="Liters of water"

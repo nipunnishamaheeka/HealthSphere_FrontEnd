@@ -30,7 +30,7 @@ export const saveHealthLog = createAsyncThunk(
         try {
             const response = await api.post("/post", healthLog);
             console.log("Saved Health Log:", response.data);
-            return response.data as HealthLogModel;
+            return response.data;
         } catch (error: any) {
             console.error("Error saving health log:", error);
             return rejectWithValue(error.response?.data || "Failed to save health log");
@@ -90,7 +90,7 @@ const healthSlice = createSlice({
             })
             .addCase(saveHealthLog.rejected, (_, action) => {
                 console.error("Failed to save health log:", action.payload);
-            });
+            })
 
         builder
             .addCase(updateHealthLog.fulfilled, (state, action: PayloadAction<HealthLogModel>) => {
