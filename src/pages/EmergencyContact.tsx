@@ -20,7 +20,8 @@ const EmergencyContact: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
-        contact_name: "",
+
+        contactName: "",
         relationship: "",
         contactNumber: "",
     });
@@ -50,13 +51,13 @@ const EmergencyContact: React.FC = () => {
     // Handle input change for existing contacts
     const handleContactInputChange = (contactId: string, field: string, value: string) => {
         const updatedContacts = contacts.map(contact => {
-            if (contact.user_id === contactId) {
+            if (contact.id === contactId) {
                 return { ...contact, [field]: value };
             }
             return contact;
         });
         // Update the local state without dispatching an action
-        const contactToUpdate = updatedContacts.find(c => c.user_id === contactId);
+        const contactToUpdate = updatedContacts.find(c => c.id === contactId);
         if (contactToUpdate) {
             // This is a visual update only until save is clicked
             console.log(`Updated field ${field} for contact ${contactId}`);
@@ -69,8 +70,9 @@ const EmergencyContact: React.FC = () => {
 
         // Create new contact with the correct model structure
         const newContact = new EmergencyContactModel(
-            "current-user-id", // This should be dynamically set based on the logged-in user
-            formData.contact_name,
+            crypto.randomUUID(),
+            "U12345",
+            formData.contactName,
             formData.relationship,
             formData.contactNumber
         );
@@ -80,7 +82,7 @@ const EmergencyContact: React.FC = () => {
             .then(() => {
                 console.log("Contact added successfully", newContact);
                 setFormData({
-                    contact_name: "",
+                    contactName: "",
                     relationship: "",
                     contactNumber: "",
                 });
@@ -94,16 +96,17 @@ const EmergencyContact: React.FC = () => {
     const handleUpdateContact = (contact: any) => {
         // Create an updated contact model with the correct structure
         const updatedContact = new EmergencyContactModel(
+            contact.id,
             contact.user_id,
-            contact.contact_name,
+            contact.contactName,
             contact.relationship,
-            contact.contact_number
+            contact.contactNumber
         );
 
         dispatch(updateEmergencyContact(updatedContact))
             .unwrap()
             .then(() => {
-                console.log(`Contact with user_id: ${contact.user_id} updated successfully`);
+                console.log(`Contact with id: ${contact.id} updated successfully`);
                 setEditingContactId(null);
             })
             .catch((error) => {
@@ -112,12 +115,12 @@ const EmergencyContact: React.FC = () => {
             });
     };
 
-    const handleRemoveContact = (user_id: string) => {
-        console.log(`Deleting contact with user_id: ${user_id}`);
-        dispatch(deleteEmergencyContact(user_id))
+    const handleRemoveContact = (id: string) => {
+        console.log(`Deleting contact with id: ${id}`);
+        dispatch(deleteEmergencyContact(id))
             .unwrap()
             .then(() => {
-                console.log(`Contact with user_id: ${user_id} deleted successfully`);
+                console.log(`Contact with id: ${id} deleted successfully`);
             })
             .catch((error) => {
                 console.error("Error deleting contact:", error);
@@ -150,7 +153,7 @@ const EmergencyContact: React.FC = () => {
                     {/* Display existing contacts */}
                     {contacts.map((contact, index) => (
                         <div
-                            key={contact.user_id}
+                            key={contact.id}
                             className="space-y-4 p-6 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-200 dark:hover:border-blue-800 transition-colors duration-200"
                         >
                             <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-800 pb-4">
@@ -161,7 +164,7 @@ const EmergencyContact: React.FC = () => {
                                     </h3>
                                 </div>
                                 <div className="flex space-x-2">
-                                    {editingContactId === contact.user_id ? (
+                                    {editingContactId === contact.id ? (
                                         <Button
                                             variant="outline"
                                             size="sm"
@@ -174,7 +177,7 @@ const EmergencyContact: React.FC = () => {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => setEditingContactId(contact.user_id)}
+                                            onClick={() => setEditingContactId(contact.id)}
                                             className="text-gray-500 hover:text-blue-500"
                                         >
                                             <User className="h-4 w-4" />
@@ -183,7 +186,7 @@ const EmergencyContact: React.FC = () => {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        onClick={() => handleRemoveContact(contact.user_id)}
+                                        onClick={() => handleRemoveContact(contact.id)}
                                         className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
                                     >
                                         <Trash2 className="h-4 w-4" />
@@ -193,49 +196,49 @@ const EmergencyContact: React.FC = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor={`name-${contact.user_id}`} className="text-gray-700 dark:text-gray-300">
+                                    <Label htmlFor={`name-${contact.id}`} className="text-gray-700 dark:text-gray-300">
                                         Full Name
                                     </Label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                         <Input
-                                            id={`name-${contact.user_id}`}
+                                            id={`name-${contact.id}`}
                                             className="pl-10"
                                             placeholder="Enter full name"
-                                            value={contact.contact_name}
+                                            value={contact.contactName}
                                             onChange={(e) => handleContactInputChange(contact.user_id, 'contact_name', e.target.value)}
-                                            disabled={editingContactId !== contact.user_id}
+                                            disabled={editingContactId !== contact.id}
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor={`relationship-${contact.user_id}`} className="text-gray-700 dark:text-gray-300">
+                                    <Label htmlFor={`relationship-${contact.id}`} className="text-gray-700 dark:text-gray-300">
                                         Relationship
                                     </Label>
                                     <Input
-                                        id={`relationship-${contact.user_id}`}
+                                        id={`relationship-${contact.id}`}
                                         placeholder="e.g. Parent, Spouse, Sibling"
                                         value={contact.relationship}
                                         onChange={(e) => handleContactInputChange(contact.user_id, 'relationship', e.target.value)}
                                         className="border-gray-200 dark:border-gray-700"
-                                        disabled={editingContactId !== contact.user_id}
+                                        disabled={editingContactId !== contact.id}
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor={`phone-${contact.user_id}`} className="text-gray-700 dark:text-gray-300">
+                                    <Label htmlFor={`phone-${contact.id}`} className="text-gray-700 dark:text-gray-300">
                                         Phone Number
                                     </Label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                         <Input
-                                            id={`phone-${contact.user_id}`}
+                                            id={`phone-${contact.id}`}
                                             className="pl-10"
                                             placeholder="Enter phone number"
-                                            value={contact.contact_number}
+                                            value={contact.contactNumber}
                                             onChange={(e) => handleContactInputChange(contact.user_id, 'contact_number', e.target.value)}
-                                            disabled={editingContactId !== contact.user_id}
+                                            disabled={editingContactId !== contact.id}
                                         />
                                     </div>
                                 </div>
@@ -251,17 +254,17 @@ const EmergencyContact: React.FC = () => {
 
                         <form onSubmit={handleAddContact} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="contact_name" className="text-gray-700 dark:text-gray-300">
+                                <Label htmlFor="contactName" className="text-gray-700 dark:text-gray-300">
                                     Full Name
                                 </Label>
                                 <div className="relative">
                                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                     <Input
-                                        id="contact_name"
-                                        name="contact_name"
+                                        id="contactName"
+                                        name="contactName"
                                         className="pl-10"
                                         placeholder="Enter full name"
-                                        value={formData.contact_name}
+                                        value={formData.contactName}
                                         onChange={handleInputChange}
                                         required
                                     />
@@ -284,14 +287,14 @@ const EmergencyContact: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="contact_number" className="text-gray-700 dark:text-gray-300">
+                                <Label htmlFor="contactNumber" className="text-gray-700 dark:text-gray-300">
                                     Phone Number
                                 </Label>
                                 <div className="relative">
                                     <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                     <Input
-                                        id="contact_number"
-                                        name="contact_number"
+                                        id="contactNumber"
+                                        name="contactNumber"
                                         className="pl-10"
                                         placeholder="Enter phone number"
                                         value={formData.contactNumber}
