@@ -1,14 +1,16 @@
 // MealPlaner
 
-export interface Meal {
-    type: string;
-    time: string;
-    items: string[];
-    calories: number;
-    protein: string;
-    carbs: string;
-    fat: string;
-}
+// export interface Meal {
+//     type: string;
+//     time: string;
+//     items: string[];
+//     calories: number;
+//     protein: string;
+//     carbs: string;
+//     fat: string;
+// }
+
+import {Meal} from "../model/MealPlanModel";
 
 export interface User {
     id: string;
@@ -129,6 +131,7 @@ export interface HealthState {
 
 export interface RootState {
     health: HealthState;
+    contacts: ContactsState;
 }
 
 //Trainer

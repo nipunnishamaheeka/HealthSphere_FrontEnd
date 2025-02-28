@@ -1,33 +1,61 @@
-import React, { useState, FormEvent } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Label, TextInput, Checkbox, Button } from "flowbite-react";
 import { HiMail } from "react-icons/hi";
 import { BsEyeSlash, BsEye } from "react-icons/bs";
-
-interface SignUpFormData {
-    name: string;
-    email: string;
-    password: string;
-    agreeToTerms: boolean;
-}
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../store/Store";
+import { User } from "../model/UserModel";
+import { registerUser } from "../store/slices/UserSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 export const SignUp: React.FC = () => {
-    const [formData, setFormData] = useState<SignUpFormData>({
+    const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
-        agreeToTerms: false,
+        agreeToTerms: false
     });
-    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showPassword, setShowPassword] = useState(false);
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Sign Up attempt:", formData);
+
+        if(formData.email === '' || formData.password === '' || formData.name === ''){
+            alert("Name, email or password is empty");
+            return;
+        }
+
+        const user: User = {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+        };
+
+        try {
+            console.log("Registering user", user);
+           await dispatch(registerUser(user));
+           navigate('/app');
+            // const response = unwrapResult(resultAction);
+            //
+            // if(response && response.success){
+            //     alert("Please check account");
+            //     navigate('/login');
+            // } else {
+            //     console.log("Failed to register user", response.message);
+            //     alert("Failed to register user");
+            // }
+        } catch (err: any) {
+            console.log("Failed to register user", err.message);
+            alert("Failed to register user");
+        }
     };
 
     return (
         <div className="w-screen h-screen bg-gradient-to-r from-blue-500 to-white flex items-center justify-center p-6">
-            {/*<div className="w-full max-w-5xl bg-white rounded-lg shadow-lg grid md:grid-cols-2 m-4">*/}
             <div className="w-2/4 max-w-3xl bg-white rounded-lg shadow-lg grid md:grid-cols-2">
                 {/* Left Column */}
                 <div className="p-8 flex flex-col justify-between bg-white">
@@ -49,13 +77,12 @@ export const SignUp: React.FC = () => {
                     <div className="mt-6">
                         <img
                             src="https://img.freepik.com/free-photo/woman-gym-with-trainer_1303-5543.jpg?t=st=1736680241~exp=1736683841~hmac=c1d93f2e6362326649c7e51b8e7ca270af23d59bfe5f675bd1cfbc16ac815a1f&w=1380"
-                            alt="Farmers working"
+                            alt="Fitness training"
                             className="w-full rounded-lg"
                         />
                     </div>
                 </div>
 
-                {/* Right Column */}
                 {/* Right Column */}
                 <div className="bg-gray-50 p-8 flex flex-col justify-center min-h-[60vh] rounded-lg shadow-lg">
                     <div className="max-w-sm mx-auto">
@@ -147,18 +174,16 @@ export const SignUp: React.FC = () => {
                                 <Label htmlFor="signin" className="block text-gray-600">
                                     Already have an account?
                                 </Label>
-                                <a
-                                    href="/"
+                                <Link
+                                    to="/"
                                     className="text-blue-500 hover:underline text-sm font-semibold mt-2 inline-block"
                                 >
                                     Sign In
-                                </a>
+                                </Link>
                             </div>
                         </form>
                     </div>
                 </div>
-
-
             </div>
         </div>
     );
