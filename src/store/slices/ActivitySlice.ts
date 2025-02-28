@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { ActivityTrackerModel, ActivityState, ActivityFormData } from "../../types/ActivityTypes";
 
@@ -57,7 +57,7 @@ export const updateActivity = createAsyncThunk<
     { rejectValue: string }
 >("activity/updateActivity", async (activity, { rejectWithValue }) => {
     try {
-        const { data } = await api.patch(`/put${activity.activity_id}`, activity);
+        const { data } = await api.patch(`/put${activity.id}`, activity);
         return {
             ...data,
             date: new Date(data.date)
@@ -67,19 +67,30 @@ export const updateActivity = createAsyncThunk<
     }
 });
 
-export const deleteActivity = createAsyncThunk<
-    string,
-    string,
-    { rejectValue: string }
->("activity/deleteActivity", async (id, { rejectWithValue }) => {
-    try {
-        await api.delete(`/delete${id}`);
-        return id;
-    } catch (error: any) {
-        return rejectWithValue(error.response?.data?.message || "Failed to delete activity");
-    }
-});
+// export const deleteActivity = createAsyncThunk<
+//     string,
+//     string,
+//     { rejectValue: string }
+// >("activity/deleteActivity", async (id, { rejectWithValue }) => {
+//     try {
+//         await api.delete(`/delete${id}`);
+//         return id;
+//     } catch (error: any) {
+//         return rejectWithValue(error.response?.data?.message || "Failed to delete activity");
+//     }
+// });
 
+export const deleteActivity = createAsyncThunk(
+    "activity/deleteActivity",
+    async (id: string, { rejectWithValue }) => {
+        try {
+            await api.delete(`/delete/${id}`);
+            return id;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || "Failed to delete activity");
+        }
+    }
+)
 const activitySlice = createSlice({
     name: "activity",
     initialState,
@@ -94,12 +105,12 @@ const activitySlice = createSlice({
                 state.isLoading = false;
                 state.activities = action.payload;
                 state.weeklyProgress = {};
-                action.payload.forEach(({ date, calories_burned, duration }) => {
+                action.payload.forEach(({ date, caloriesBurned, duration }) => {
                     const formattedDate = date.toISOString().split("T")[0];
                     if (!state.weeklyProgress[formattedDate]) {
                         state.weeklyProgress[formattedDate] = { calories: 0, duration: 0, count: 0 };
                     }
-                    state.weeklyProgress[formattedDate].calories += calories_burned;
+                    state.weeklyProgress[formattedDate].calories += caloriesBurned;
                     state.weeklyProgress[formattedDate].duration += duration;
                     state.weeklyProgress[formattedDate].count += 1;
                 });
@@ -113,7 +124,7 @@ const activitySlice = createSlice({
             })
             .addCase(updateActivity.fulfilled, (state, action) => {
                 const index = state.activities.findIndex(
-                    ({ activity_id }) => activity_id === action.payload.activity_id
+                    ({ id }) => id === action.payload.id
                 );
                 if (index !== -1) {
                     state.activities[index] = action.payload;
@@ -121,7 +132,7 @@ const activitySlice = createSlice({
             })
             .addCase(deleteActivity.fulfilled, (state, action) => {
                 state.activities = state.activities.filter(
-                    ({ activity_id }) => activity_id !== action.payload
+                    ({ id }) => id !== action.payload
                 );
             });
     },
@@ -129,7 +140,7 @@ const activitySlice = createSlice({
 
 // Selectors with proper types
 export const selectTotalCalories = (state: { activity: ActivityState }) =>
-    state.activity.activities.reduce((sum, { calories_burned }) => sum + calories_burned, 0);
+    state.activity.activities.reduce((sum, { caloriesBurned }) => sum + caloriesBurned, 0);
 
 export const selectTotalActiveTime = (state: { activity: ActivityState }) => {
     const totalMinutes = state.activity.activities.reduce((sum, { duration }) => sum + duration, 0);

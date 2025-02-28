@@ -41,12 +41,12 @@ const ActivityTracker: React.FC = () => {
     }, [dispatch]);
 
 
-    const handleAddActivity = async (activityData: Omit<ActivityTrackerModel, 'activity_id' | 'user_id'>) => {
+    const handleAddActivity = async (activityData: Omit<ActivityTrackerModel, 'id' | 'user_id'>) => {
         try {
             console.log('Adding new activity:', activityData);
             const newActivity = {
                 ...activityData,
-                user_id: 'current-user-id', // Replace with actual user ID from your auth system
+                user_id: 'U12345', // Replace with actual user ID from your auth system
             };
 
             const result = await dispatch(saveActivity(newActivity)).unwrap();
@@ -154,13 +154,13 @@ const ActivityTracker: React.FC = () => {
                         <div className="space-y-4">
                             {activities.map((activity) => (
                                 <div
-                                    key={activity.activity_id || activity.date}  // Fallback to date if activity_id is missing
+                                    key={activity.id || activity.date}  // Fallback to date if id is missing
                                     className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                                 >
                                     <div className="flex items-center space-x-4">
                                         <Activity className="h-6 w-6 text-blue-500"/>
                                         <div>
-                                            <h3 className="font-medium">{activity.exercise_type}</h3>
+                                            <h3 className="font-medium">{activity.exerciseType}</h3>
                                             <p className="text-sm text-gray-500">
                                                 {new Date(activity.date).toLocaleString()}
                                             </p>
@@ -173,7 +173,7 @@ const ActivityTracker: React.FC = () => {
                                         </div>
                                         <div>
                                             <p className="text-sm text-gray-500">Calories</p>
-                                            <p className="font-medium">{activity.calories_burned}</p>
+                                            <p className="font-medium">{activity.caloriesBurned}</p>
                                         </div>
                                         <div className="flex space-x-2">
                                             <Button
@@ -186,7 +186,7 @@ const ActivityTracker: React.FC = () => {
                                                 Edit
                                             </Button>
                                             <Button
-                                                onClick={() => handleDeleteActivity(activity.activity_id)}
+                                                onClick={() => handleDeleteActivity(activity.id)}
                                                 variant="ghost"
                                                 className="text-red-500 hover:text-red-700"
                                             >

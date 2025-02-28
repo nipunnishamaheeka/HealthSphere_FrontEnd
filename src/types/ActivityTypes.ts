@@ -1,17 +1,17 @@
 // types/activity.ts
 export interface ActivityFormData {
-    exercise_type: string;
+    type: string;
     duration: number;
-    calories_burned: number;
+    calories: number;
     date: Date;
 }
 
 export interface ActivityTrackerModel {
-    activity_id: string;
+    id: string;
     user_id: string;
-    exercise_type: string;
+    exerciseType: string;
     duration: number;
-    calories_burned: number;
+    caloriesBurned: number;
     date: Date;
 }
 
