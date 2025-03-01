@@ -40,7 +40,6 @@ const ActivityTracker: React.FC = () => {
         fetchData();
     }, [dispatch]);
 
-
     const handleAddActivity = async (activityData: Omit<ActivityTrackerModel, 'id' | 'user_id'>) => {
         try {
             console.log('Adding new activity:', activityData);
@@ -52,12 +51,18 @@ const ActivityTracker: React.FC = () => {
             const result = await dispatch(saveActivity(newActivity)).unwrap();
             console.log('Activity added successfully:', result);
             toast.success('Activity added successfully');
+
+            // Re-fetch activities after adding a new one
+            await dispatch(fetchActivities()).unwrap();
+            console.log('Activities re-fetched after adding new activity');
+
             setIsPopupOpen(false);
         } catch (error) {
             console.error('Error adding activity:', error);
             toast.error('Failed to add activity');
         }
     };
+
 
     const handleUpdateActivity = async (activityData: ActivityTrackerModel) => {
         try {
@@ -176,15 +181,15 @@ const ActivityTracker: React.FC = () => {
                                             <p className="font-medium">{activity.caloriesBurned}</p>
                                         </div>
                                         <div className="flex space-x-2">
-                                            <Button
-                                                onClick={() => {
-                                                    setSelectedActivity(activity);
-                                                    setIsPopupOpen(true);
-                                                }}
-                                                className="text-blue-500 hover:text-blue-700"
-                                            >
-                                                Edit
-                                            </Button>
+                                            {/*<Button*/}
+                                            {/*    onClick={() => {*/}
+                                            {/*        setSelectedActivity(activity);*/}
+                                            {/*        setIsPopupOpen(true);*/}
+                                            {/*    }}*/}
+                                            {/*    className="text-blue-500 hover:text-blue-700"*/}
+                                            {/*>*/}
+                                            {/*    Edit*/}
+                                            {/*</Button>*/}
                                             <Button
                                                 onClick={() => handleDeleteActivity(activity.id)}
                                                 variant="ghost"

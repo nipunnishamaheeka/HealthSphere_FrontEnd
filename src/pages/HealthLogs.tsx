@@ -79,6 +79,7 @@ const HealthLogs: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log("Saving health log:", formData);
+
         const newLog = new HealthLogModel(
             crypto.randomUUID(),
             'u12345',
@@ -92,6 +93,7 @@ const HealthLogs: React.FC = () => {
         await dispatch(saveHealthLog(newLog));
         console.log("Health log saved successfully", newLog);
 
+        // Reset form data
         setFormData({
             date: new Date().toISOString().split('T')[0], // Reset date to today
             weight: '',
@@ -100,13 +102,24 @@ const HealthLogs: React.FC = () => {
             sleepHours: '',
             waterIntake: ''
         });
+
+        // Re-fetch health logs after saving
+        dispatch(getHealthLogs()).then(() => console.log("Health logs fetched successfully"));
     };
+
+
 
     const handleDelete = async (logId: string) => {
         console.log("Deleting health log with ID:", logId);
+
+        // Delete the health log
         await dispatch(deleteHealthLog(logId));
         console.log("Health log deleted successfully", logId);
+
+        // Re-fetch health logs after deletion
+        dispatch(getHealthLogs()).then(() => console.log("Health logs fetched successfully after deletion"));
     };
+
 
     return (
         <div className="space-y-6 p-6">

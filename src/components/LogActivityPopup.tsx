@@ -19,7 +19,7 @@ interface LogActivityPopupProps {
 
 interface ActivityFormData {
     type: string;
-    duration: string;
+    duration: number;
     distance?: string;
     calories: number;
     time: string;
@@ -45,7 +45,7 @@ const LogActivityPopup: React.FC<LogActivityPopupProps> = ({
                                                            }) => {
     const [formData, setFormData] = useState<ActivityFormData>({
         type: '',
-        duration: '',
+        duration: 0,
         distance: '',
         calories: 0,
         time: new Date().toLocaleTimeString([], {
@@ -59,7 +59,7 @@ const LogActivityPopup: React.FC<LogActivityPopupProps> = ({
         onSubmit(formData);
         setFormData({
             type: '',
-            duration: '',
+            duration: 0,
             distance: '',
             calories: 0,
             time: new Date().toLocaleTimeString([], {
@@ -92,18 +92,19 @@ const LogActivityPopup: React.FC<LogActivityPopupProps> = ({
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Activity Type</label>
+                            <label className="text-sm font-medium ">Activity Type</label>
                             <Select
                                 value={formData.type}
                                 onValueChange={(value: string) =>
                                     setFormData(prev => ({ ...prev, type: value }))
                                 }
                             >
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className="w-full z-20">
                                     <SelectValue placeholder="Select activity type" />
                                 </SelectTrigger>
-                                <SelectContent>
-                                    {activityTypes.map((type) => (
+                                <SelectContent className="z-50 bg-white shadow-lg border border-gray-300">
+
+                                {activityTypes.map((type) => (
                                         <SelectItem key={type} value={type}>
                                             {type}
                                         </SelectItem>
@@ -118,7 +119,8 @@ const LogActivityPopup: React.FC<LogActivityPopupProps> = ({
                                 type="number"
                                 value={formData.duration}
                                 onChange={(e) =>
-                                    setFormData(prev => ({ ...prev, duration: e.target.value }))
+                                    setFormData(prev => ({ ...prev,
+                                        duration:  parseInt(e.target.value) || 0}))
                                 }
                                 placeholder="Enter duration"
                                 min="1"
