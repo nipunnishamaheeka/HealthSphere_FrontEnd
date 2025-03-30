@@ -28,26 +28,32 @@ const api = axios.create({
     // },
 });
 
+// Change your API calls to use the proxy path
 export const registerUser = createAsyncThunk(
-    "user/register",
+    'user/register',
     async (user: any, { rejectWithValue }) => {
         try {
-            const response = await api.post("/register", user); // ✅ Fix: Send `user` directly
+            // Changed URL to use the proxy
+            const response = await axios.post('/api/user/register', user);
             return response.data;
-        } catch (err: any) {
-            console.error("Register error:", err.response?.data); // Debugging
-            return rejectWithValue(err.response?.data?.error || "Failed to register user");
+        } catch (error: any) {
+            console.log('Register error:', error.message);
+            return rejectWithValue(error.response?.data || { message: 'Registration failed' });
         }
     }
 );
 
+// Change login API call to use the proxy
 export const loginUser = createAsyncThunk(
     'user/login',
     async (user: any, {rejectWithValue}) => {
         try {
-            const response = await api.post('/login', {user}, {withCredentials: true});
+            console.log("Logging in user:", user);
+            const response = await axios.post('/api/user/login', user, {withCredentials: true});
+            console.log("Login response:", response.data);
             return response.data;
         } catch (err: any) {
+            console.log("Login error:", err.message, err.response?.data);
             return rejectWithValue(err.response?.data?.message || "Failed to login user");
         }
     }

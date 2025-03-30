@@ -17,15 +17,20 @@ export const SignUp: React.FC = () => {
         agreeToTerms: false
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        setError('');
+        setSuccess(false);
+        
         if(formData.email === '' || formData.password === '' || formData.name === ''){
-            alert("Name, email or password is empty");
+            setError("Name, email or password is empty");
             return;
         }
 
@@ -36,21 +41,43 @@ export const SignUp: React.FC = () => {
         };
 
         try {
+            setIsSubmitting(true);
             console.log("Registering user", user);
-           await dispatch(registerUser(user));
-           navigate('/app');
-            // const response = unwrapResult(resultAction);
-            //
-            // if(response && response.success){
-            //     alert("Please check account");
-            //     navigate('/login');
-            // } else {
-            //     console.log("Failed to register user", response.message);
-            //     alert("Failed to register user");
-            // }
+            const resultAction = await dispatch(registerUser(user));
+            
+            // Handle potential rejection from the thunk
+            if (registerUser.rejected.match(resultAction)) {
+                const errorMessage = resultAction.payload?.message || resultAction.error.message || "Registration failed";
+                setError(errorMessage);
+                console.log("Failed to register user", errorMessage);
+                return;
+            }
+            
+            const response = unwrapResult(resultAction);
+            console.log("Registration response:", response);
+            
+            if(response && response.success){
+                setError(''); // Clear any error messages
+                setSuccess(true);
+                console.log("Registration successful!");
+                // Navigate to login page after a short delay
+                setTimeout(() => {
+                    navigate('/login');
+                }, 2000);
+            } else if (response && response.message) {
+                // Only set error if there's an actual error message
+                setError(response.message);
+                console.log("Registration issue:", response.message);
+            } else if (!response) {
+                setError("No response received from server");
+                console.log("No response received from server");
+            }
         } catch (err: any) {
-            console.log("Failed to register user", err.message);
-            alert("Failed to register user");
+            const errorMessage = err.message || "Registration failed";
+            setError(errorMessage);
+            console.log("Failed to register user:", err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -159,14 +186,28 @@ export const SignUp: React.FC = () => {
                                     I agree to the Terms, Privacy Policy, and Fees
                                 </Label>
                             </div>
+                            {/* Display error message if any */}
+                            {error && (
+                                <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg">
+                                    {error}
+                                </div>
+                            )}
+                            
+                            {/* Display success message if registration was successful */}
+                            {success && (
+                                <div className="p-3 text-sm text-green-700 bg-green-100 rounded-lg">
+                                    Registration successful! Redirecting to login page...
+                                </div>
+                            )}
+                            
                             {/* Submit Button */}
                             <Button
                                 type="submit"
                                 color="success"
                                 className="w-full h-12 text-lg font-semibold bg-blue-500 text-white hover:bg-blue-600 focus:outline-none disabled:bg-blue-300 flex items-center justify-center"
-                                disabled={!formData.agreeToTerms}
+                                disabled={!formData.agreeToTerms || isSubmitting}
                             >
-                                Sign Up
+                                {isSubmitting ? "Signing up..." : "Sign Up"}
                             </Button>
 
                             {/* Centered Sign In Link */}
