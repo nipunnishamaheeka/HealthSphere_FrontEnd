@@ -235,7 +235,7 @@ const HealthLogs: React.FC = () => {
                             </thead>
                             <tbody>
                             {healthLogs.map((log, index) => (
-                                <tr key={log.id || `log-${index}`} className="border-b">
+                                <tr key={log.log_id || `log-${index}`} className="border-b">
 
                                 <td className="px-4 py-2">
                                         {new Date(log.date).toLocaleDateString()}
@@ -246,7 +246,7 @@ const HealthLogs: React.FC = () => {
                                     <td className="px-4 py-2">{log.waterIntake}</td>
                                     <td className="px-4 py-2">
                                         <button
-                                            onClick={() => handleDelete(log.id)}
+                                            onClick={() => handleDelete(log.log_id)}
                                             className="text-red-500 hover:text-red-700"
                                         >
                                             <Trash2 className="h-4 w-4" />

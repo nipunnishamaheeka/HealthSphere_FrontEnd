@@ -10,7 +10,7 @@
 //     fat: string;
 // }
 
-import {Meal} from "../model/MealPlanModel";
+import {Meal, MealPlannerState} from "../model/MealPlanModel";
 
 export interface User {
     id: string;
@@ -43,40 +43,40 @@ export interface User {
 
 //GoalTracker
 
-export interface Milestone {
-    title: string;
-    completed: boolean;
-}
+// export interface Milestone {
+//     title: string;
+//     completed: boolean;
+// }
 
-export interface Goal {
-    id: number;
-    title: string;
-    category: string;
-    target: string;
-    progress: number;
-    deadline: string;
-    status: 'On Track' | 'Ahead' | 'Behind';
-    milestones: Milestone[];
-    createdAt: string;
-}
+// export interface Goal {
+//     id: number;
+//     title: string;
+//     category: string;
+//     target: string;
+//     progress: number;
+//     deadline: string;
+//     status: 'On Track' | 'Ahead' | 'Behind';
+//     milestones: Milestone[];
+//     createdAt: string;
+// }
+//
+// export interface Achievement {
+//     id: string;
+//     title: string;
+//     description: string;
+//     icon: string;
+//     date: string;
+// }
 
-export interface Achievement {
-    id: string;
-    title: string;
-    description: string;
-    icon: string;
-    date: string;
-}
-
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    streak: number;
-    achievementPoints: number;
-    goals: Goal[];
-    achievements: Achievement[];
-}
+// export interface User {
+//     id: string;
+//     name: string;
+//     email: string;
+//     streak: number;
+//     achievementPoints: number;
+//     goals: Goal[];
+//     achievements: Achievement[];
+// }
 
 // EmergencyContact
 
@@ -132,6 +132,7 @@ export interface HealthState {
 export interface RootState {
     health: HealthState;
     contacts: ContactsState;
+    mealPlanner: MealPlannerState;
 }
 
 //Trainer

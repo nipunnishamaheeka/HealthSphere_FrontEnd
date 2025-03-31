@@ -1,16 +1,8 @@
-// types/type.ts
 
-// Goal Setting Types
-export type GoalSettingModel = {
-    goal_id: string;
-    user_id: string;
-    goal_type: string;
-    goal_value: string;
-    current_progress: number;
-    target_date: Date;
-}
 
 // Goal State Types
+import {GoalSettingModel} from "@/model/GoalModel";
+
 export type GoalState = {
     goals: GoalSettingModel[];
     isLoading: boolean;
@@ -57,11 +49,37 @@ export type AppThunk<ReturnType = void> = (
 // Goal Status Type
 export type GoalStatus = 'Not Started' | 'In Progress' | 'Completed';
 
-// User Type (if needed for authentication)
-export type User = {
-    user_id: string;
-    username: string;
+export interface User {
+    id: string;
+    name: string;
     email: string;
+    streak: number;
+    achievementPoints: number;
+    goals: Goal[];
+    achievements: Achievement[];
+}
+
+export interface Goal {
+    id: number;
+    title: string;
+    category: string;
+    target: string;
+    progress: number;
+    deadline: string;
+    status: 'On Track' | 'Ahead' | 'Behind';
+    milestones: Milestone[];
+    createdAt: string;
+}
+export interface Milestone {
+    title: string;
+    completed: boolean;
+}
+export interface Achievement {
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    date: string;
 }
 
 // Goal Statistics Type

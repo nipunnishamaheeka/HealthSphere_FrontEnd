@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { Menu, X, User, LogOut, Settings, LayoutDashboard, Activity, Dumbbell, Heart, Coffee, Target, Moon, Sun } from 'lucide-react';
-import { useTheme } from '../components/Theme/ThemeContext';
+import { useState } from 'react';
+import { Menu, X, User, LogOut, Settings, LayoutDashboard, Activity, Heart, Coffee, Target } from 'lucide-react';
+// import { useTheme } from '../components/Theme/ThemeContext';
 import { Dashboard } from '../pages/Dashboard';
 import ActivityTracker from "../pages/ActivityTracker";
 import MealPlan from "../pages/MealPlan";
 import GoalSetting from "../pages/GoalSetting";
 import EmergencyContact from "../pages/EmergencyContact";
 import HealthLogs from "../pages/HealthLogs";
-import Trainer from "../pages/Trainer";
+import {useNavigate} from 'react-router-dom'
 
 export const NavBar = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [activePage, setActivePage] = useState('Dashboard');
-    const { theme, toggleTheme } = useTheme();
-
+    // const { theme, toggleTheme } = useTheme();
+    const navigate = useNavigate();
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
@@ -25,12 +25,13 @@ export const NavBar = () => {
 
     const handleLogout = () => {
         console.log('Logged out');
+        navigate('/');
     };
 
     const navigationItems = [
         { id: 'Dashboard', label: 'Dashboard', icon: LayoutDashboard, component: <Dashboard /> },
         { id: 'HealthMetric', label: 'Health Log New', icon: Heart, component: <HealthLogs /> },
-        { id: 'Client', label: 'Trainer Ui', icon: Dumbbell, component: <Trainer /> },
+        // { id: 'Client', label: 'Trainer Ui', icon: Dumbbell, component: <Trainer /> },
         { id: 'ActivityItem', label: 'Activity Tracker', icon: Activity, component: <ActivityTracker /> },
         { id: 'Meal', label: 'Meal Plan', icon: Coffee, component: <MealPlan /> },
         { id: 'Goal', label: 'Goal Setting', icon: Target, component: <GoalSetting /> },
@@ -65,17 +66,17 @@ export const NavBar = () => {
                             {/* Right Side Controls */}
                             <div className="flex items-center space-x-4">
                                 {/* Theme Toggle */}
-                                <button
-                                    onClick={toggleTheme}
-                                    className="p-2 text-gray-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    aria-label="Toggle theme"
-                                >
-                                    {theme === 'dark' ? (
-                                        <Sun className="w-5 h-5" />
-                                    ) : (
-                                        <Moon className="w-5 h-5" />
-                                    )}
-                                </button>
+                                {/*<button*/}
+                                {/*    onClick={toggleTheme}*/}
+                                {/*    className="p-2 text-gray-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"*/}
+                                {/*    aria-label="Toggle theme"*/}
+                                {/*>*/}
+                                {/*    {theme === 'dark' ? (*/}
+                                {/*        <Sun className="w-5 h-5" />*/}
+                                {/*    ) : (*/}
+                                {/*        <Moon className="w-5 h-5" />*/}
+                                {/*    )}*/}
+                                {/*</button>*/}
 
                                 {/* Profile Button */}
                                 <div className="relative">
@@ -95,10 +96,10 @@ export const NavBar = () => {
                                     {/* Profile Dropdown */}
                                     {isProfileOpen && (
                                         <div className="absolute right-0 mt-3 w-64 bg-white rounded-lg shadow-lg py-2 dark:bg-gray-700 transform transition-all duration-200">
-                                            <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-600">
-                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">User Name</p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-300">user@example.com</p>
-                                            </div>
+                                            {/*<div className="px-4 py-3 border-b border-gray-100 dark:border-gray-600">*/}
+                                            {/*    <p className="text-sm font-semibold text-gray-900 dark:text-white">User Name</p>*/}
+                                            {/*    <p className="text-sm text-gray-500 dark:text-gray-300">user@example.com</p>*/}
+                                            {/*</div>*/}
                                             <button
                                                 onClick={() => setActivePage('Settings')}
                                                 className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-600"

@@ -45,7 +45,7 @@ const ActivityTracker: React.FC = () => {
             console.log('Adding new activity:', activityData);
             const newActivity = {
                 ...activityData,
-                user_id: 'U12345', // Replace with actual user ID from your auth system
+                user_id: 'U12345',
             };
 
             const result = await dispatch(saveActivity(newActivity)).unwrap();

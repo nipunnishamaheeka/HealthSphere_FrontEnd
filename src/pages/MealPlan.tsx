@@ -1,109 +1,148 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
-import { Coffee, ChevronRight, Plus, Edit, Trash2 } from 'lucide-react';
+import React, {useEffect, useState} from 'react';
+import {Card, CardContent, CardHeader, CardTitle} from '../components/common/Card';
+import {ChevronRight, Coffee, Edit, Plus, Trash2} from 'lucide-react';
 import MealPlanPopup from "../components/MealPlanPopup";
-import { useAppDispatch, useAppSelector } from '../types/hooks';
-import {
-    addMeal,
-    fetchMeals,
-    createMeal,
-    updateMealAsync,
-    deleteMealAsync,
-    Meal,
-    MealType,
-    MealPlannerModel
-} from '../store/slices/MealPlannerSlice';
+import {useAppDispatch, useAppSelector} from '../types/hooks';
+import {createMeal, deleteMealAsync, fetchMeals, updateMealAsync,} from '../store/slices/MealPlannerSlice';
+import {MealPlannerModel} from "../model/MealPlanModel";
+import {MealModel, MealPlannerState} from "../types/mealType";
+
+
 
 const MealPlanner: React.FC = () => {
     const dispatch = useAppDispatch();
-    const meals = useAppSelector(state => state.mealPlanner.meals);
-    const user = useAppSelector(state => state.mealPlanner.user);
+    const mealsState = useAppSelector((state): MealPlannerState => state.mealPlanner);
+    const meals = Array.isArray(mealsState.meals) ? mealsState.meals : [];
+
     const isLoading = useAppSelector(state => state.mealPlanner.isLoading);
     const error = useAppSelector(state => state.mealPlanner.error);
 
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
+    const [editingMeal, setEditingMeal] = useState<MealModel | null>(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
 
-    // Fetch meals when component mounts or date/user changes
-    // useEffect(() => {
-    //     if (user) {
-    //         dispatch(fetchMeals({ userId: user.id, date: selectedDate }));
-    //     }
-    // }, [dispatch, user, selectedDate]);
-
     useEffect(() => {
-        console.log("Fetching health logs...");
-        dispatch(fetchMeals()).then(() => console.log("Health logs fetched successfully"));
+        const fetchData = async () => {
+            try {
+                console.log("Fetching meals...");
+                const result = await dispatch(fetchMeals()).unwrap();
+                console.log('Meals fetched successfully:', result);
+            } catch (error) {
+                console.error('Error fetching meals:', error);
+            }
+        };
+        fetchData();
     }, [dispatch]);
-    // Helper function to convert Meal to MealPlannerModel
-    const convertToMealPlannerModel = (meal: Meal, userId: string): MealPlannerModel => {
+
+    // Helper function to parse nutritional data
+    const parseNutritionalData = (meal): { calories: number; protein: number; carbs: number; fat: number } => {
+        try {
+            console.log("Parsing nutritional data:", meal);
+            if (meal.nutritionalBreakdown) {
+                const nutritionData = JSON.parse(meal.nutritionalBreakdown);
+                console.log("Parsed nutritional data:", nutritionData);
+
+                const extractNumber = (value: string | number): number => {
+                    if (typeof value === 'string') {
+                        const match = value.match(/\d+/);
+                        return match ? Number(match[0]) : 0;
+                    }
+                    return Number(value);
+                };
+
+                return {
+                    calories: extractNumber(nutritionData.calories) || 0,
+                    carbs: extractNumber(nutritionData.carbs),
+                    protein: extractNumber(nutritionData.protein),
+                    fat: extractNumber(nutritionData.fat),
+                };
+            }
+            return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+        } catch (e) {
+            console.error("Error parsing nutritional data:", e, meal.nutritionalBreakdown);
+            return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+        }
+    };
+
+    // Helper function to parse ingredients
+    const parseIngredients = (meal): string[] => {
+        try {
+            if (typeof meal.ingredients === 'string') {
+                return JSON.parse(meal.ingredients) || [];
+            } else if (Array.isArray(meal.ingredients)) {
+                return meal.ingredients;
+            }
+            return [];
+        } catch (e) {
+            console.error("Error parsing ingredients:", e, meal.ingredients);
+            return [];
+        }
+    };
+
+    const convertToMealPlannerModel = (meal: MealModel): MealPlannerModel => {
         return new MealPlannerModel(
             meal.id,
-            userId,
-            null, // trainer_id
-            meal.date || new Date(), // meal_plan_date
-            meal.type,
-            JSON.stringify(meal.items), // ingredients
-            JSON.stringify({ // nutritional_breakdown
-                calories: meal.calories,
-                protein: meal.protein,
-                carbs: meal.carbs,
-                fat: meal.fat
+            "U12345", // Hardcoded user_id
+            "T12345", // Hardcoded trainer_id
+            meal.mealType,
+            JSON.stringify(meal.ingredients),
+            JSON.stringify({
+                calories: meal.calories || 0,
+                protein: Number(meal.protein) || 0,
+                carbs: Number(meal.carbs) || 0,
+                fat: Number(meal.fat) || 0,
             })
         );
     };
 
-    const handleAddMeal = (newMeal: Meal) => {
-        if (user) {
-            // Set the date of the meal to the selected date
-            const mealWithDate = {
-                ...newMeal,
-                date: selectedDate
-            };
-
-            // Create MealPlannerModel instance for logging/debugging
-            const mealModel = convertToMealPlannerModel(mealWithDate, user.id);
-            console.log('Creating meal with model:', mealModel);
-
-            // Create new meal with API
-            dispatch(createMeal({ meal: mealWithDate, userId: user.id }));
+    // const handleAddMeal = async (mealData: Omit<MealPlannerModel, "meal_id" | "user_id">) => {
+    //     try {
+    //         const newMeal = {
+    //             ...mealData,
+    //             meal_id: "",
+    //             user_id: "U12345"
+    //         };
+    //         console.log("Adding new meal:", newMeal);
+    //         await dispatch(createMeal(newMeal as MealPlannerModel)).unwrap();
+    //         setIsPopupOpen(false);
+    //     } catch (error) {
+    //         console.error("Error adding meal:", error);
+    //     }
+    // };
+    const handleAddMeal = async (mealData: MealModel) => {
+        try {
+            const newMeal = convertToMealPlannerModel(mealData);
+            console.log("Adding new meal:", newMeal);
+            await dispatch(createMeal(newMeal)).unwrap();
             setIsPopupOpen(false);
-        } else {
-            console.error("Cannot add meal: No user logged in");
+            dispatch(fetchMeals()).unwrap();
+        } catch (error) {
+            console.error("Error adding meal:", error);
         }
     };
 
-    const handleUpdateMeal = (updatedMeal: Meal) => {
-        if (user && editingMeal) {
-            // Keep the original meal date if it exists
-            const mealToUpdate = {
-                ...updatedMeal,
-                id: editingMeal.id,
-                date: editingMeal.date || selectedDate
-            };
-
-            // Create MealPlannerModel instance for logging/debugging
-            const mealModel = convertToMealPlannerModel(mealToUpdate, user.id);
-            console.log('Updating meal with model:', mealModel);
-
-            // Update meal with API
-            dispatch(updateMealAsync({ meal: mealToUpdate, userId: user.id }));
+    const handleUpdateMeal = async (mealData: MealModel) => {
+        try {
+            const updatedMeal = convertToMealPlannerModel(mealData);
+            console.log("Updating meal:", updatedMeal);
+            const result = await dispatch(updateMealAsync(updatedMeal)).unwrap();
+            console.log("Meal updated successfully:", result);
+            setIsPopupOpen(false);
             setEditingMeal(null);
-            setIsPopupOpen(false);
-        } else {
-            console.error("Cannot update meal: No user logged in or no meal selected");
+        } catch (error) {
+            console.error("Error updating meal:", error);
         }
     };
 
-    const handleDeleteMeal = (mealId: string) => {
-        if (window.confirm("Are you sure you want to delete this meal?")) {
-            console.log(`Deleting meal with ID: ${mealId}`);
-            dispatch(deleteMealAsync(mealId));
+    const handleDeleteMeal = (id: string, mealType: string) => {
+        if (window.confirm(`Are you sure you want to delete the "${mealType}" meal?`)) {
+            console.log(`Deleting meal with ID: ${id}`);
+            dispatch(deleteMealAsync(id));
+            dispatch(fetchMeals()).unwrap();
         }
     };
 
-    const openEditPopup = (meal: Meal) => {
+    const openEditPopup = (meal: MealPlannerModel) => {
         setEditingMeal(meal);
         setIsPopupOpen(true);
     };
@@ -112,6 +151,10 @@ const MealPlanner: React.FC = () => {
         const newDate = new Date(e.target.value);
         setSelectedDate(newDate);
     };
+
+    // Debug logging
+    console.log("Meals state structure:", mealsState);
+    console.log("Processed meals array:", meals);
 
     if (error) {
         return <div className="p-6 text-red-500">Error: {error}</div>;
@@ -148,7 +191,7 @@ const MealPlanner: React.FC = () => {
                 </div>
             ) : (
                 <>
-                    {meals.length === 0 ? (
+                    {!meals || meals.length === 0 ? (
                         <Card>
                             <CardContent className="p-6 text-center text-gray-500">
                                 <p className="py-8">No meals planned for this day. Click "Add Meal" to create one.</p>
@@ -156,67 +199,78 @@ const MealPlanner: React.FC = () => {
                         </Card>
                     ) : (
                         <div className="space-y-4">
-                            {meals.map((meal) => (
-                                <Card key={meal.id}>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center space-x-4">
-                                                <Coffee className="h-8 w-8 text-blue-500" />
-                                                <div>
-                                                    <h3 className="text-lg font-medium">{meal.type}</h3>
-                                                    <p className="text-sm text-gray-500">{meal.time}</p>
+                            {meals.map((meal) => {
+                                if (!meal) return null;
+
+                                const { calories, protein, carbs, fat } = parseNutritionalData(meal);
+                                const ingredients = parseIngredients(meal);
+
+                                return (
+                                    <Card key={meal.meal_id}>
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center space-x-4">
+                                                    <Coffee className="h-8 w-8 text-blue-500" />
+                                                    <div>
+                                                        <h3 className="text-lg font-medium">{meal.mealType}</h3>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center space-x-4">
+                                                    <button
+                                                        className="text-blue-500 hover:text-blue-700"
+                                                        onClick={() => openEditPopup(meal)}
+                                                    >
+                                                        <Edit className="h-5 w-5" />
+                                                    </button>
+                                                    <button
+                                                        className="text-red-500 hover:text-red-700"
+                                                        onClick={() => handleDeleteMeal(meal.id, meal.mealType)}
+                                                    >
+                                                        <Trash2 className="h-5 w-5" />
+                                                    </button>
+                                                    <ChevronRight className="h-6 w-6 text-gray-400" />
                                                 </div>
                                             </div>
-                                            <div className="flex items-center space-x-4">
-                                                <button
-                                                    className="text-blue-500 hover:text-blue-700"
-                                                    onClick={() => openEditPopup(meal)}
-                                                >
-                                                    <Edit className="h-5 w-5" />
-                                                </button>
-                                                <button
-                                                    className="text-red-500 hover:text-red-700"
-                                                    onClick={() => handleDeleteMeal(meal.id)}
-                                                >
-                                                    <Trash2 className="h-5 w-5" />
-                                                </button>
-                                                <ChevronRight className="h-6 w-6 text-gray-400" />
-                                            </div>
-                                        </div>
 
-                                        <div className="mt-4">
-                                            <div className="space-y-2">
-                                                {meal.items.map((item, idx) => (
-                                                    <p key={idx} className="text-gray-600">{item}</p>
-                                                ))}
+                                            <div className="mt-4">
+                                                <div className="space-y-2">
+                                                    {ingredients && ingredients.length > 0 ? (
+                                                        ingredients.map((item: string, index: number) => (
+                                                            <p key={index} className="text-gray-600">{item}</p>
+                                                        ))
+                                                    ) : (
+                                                        <p className="text-gray-400 italic">No ingredients listed</p>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div className="mt-4 grid grid-cols-4 gap-4">
-                                            <div>
-                                                <p className="text-sm text-gray-500">Calories</p>
-                                                <p className="font-medium">{meal.calories}</p>
+                                            <div className="mt-4 grid grid-cols-4 gap-4">
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Calories</p>
+                                                    <p className="font-medium">{calories}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Protein</p>
+                                                    <p className="font-medium">{protein}g</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Carbs</p>
+                                                    <p className="font-medium">{carbs}g</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm text-gray-500">Fat</p>
+                                                    <p className="font-medium">{fat}g</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-sm text-gray-500">Protein</p>
-                                                <p className="font-medium">{meal.protein}g</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-gray-500">Carbs</p>
-                                                <p className="font-medium">{meal.carbs}g</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm text-gray-500">Fat</p>
-                                                <p className="font-medium">{meal.fat}g</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
                         </div>
                     )}
 
-                    {meals.length > 0 && (
+                    {meals && meals.length > 0 && (
                         <Card>
                             <CardHeader>
                                 <CardTitle>Nutritional Summary</CardTitle>
@@ -226,25 +280,41 @@ const MealPlanner: React.FC = () => {
                                     <div>
                                         <p className="text-sm text-gray-500">Total Calories</p>
                                         <p className="text-2xl font-bold">
-                                            {meals.reduce((sum, meal) => sum + Number(meal.calories), 0)}
+                                            {meals.reduce((sum, meal) => {
+                                                if (!meal) return sum;
+                                                const { calories } = parseNutritionalData(meal);
+                                                return sum + Number(calories);
+                                            }, 0)}
                                         </p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-500">Total Protein</p>
                                         <p className="text-2xl font-bold">
-                                            {meals.reduce((sum, meal) => sum + Number(meal.protein), 0)}g
+                                            {meals.reduce((sum, meal) => {
+                                                if (!meal) return sum;
+                                                const { protein } = parseNutritionalData(meal);
+                                                return sum + Number(protein);
+                                            }, 0)}g
                                         </p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-500">Total Carbs</p>
                                         <p className="text-2xl font-bold">
-                                            {meals.reduce((sum, meal) => sum + Number(meal.carbs), 0)}g
+                                            {meals.reduce((sum, meal) => {
+                                                if (!meal) return sum;
+                                                const { carbs } = parseNutritionalData(meal);
+                                                return sum + Number(carbs);
+                                            }, 0)}g
                                         </p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-500">Total Fat</p>
                                         <p className="text-2xl font-bold">
-                                            {meals.reduce((sum, meal) => sum + Number(meal.fat), 0)}g
+                                            {meals.reduce((sum, meal) => {
+                                                if (!meal) return sum;
+                                                const { fat } = parseNutritionalData(meal);
+                                                return sum + Number(fat);
+                                            }, 0)}g
                                         </p>
                                     </div>
                                 </div>
@@ -261,7 +331,7 @@ const MealPlanner: React.FC = () => {
                     setEditingMeal(null);
                 }}
                 onSubmit={editingMeal ? handleUpdateMeal : handleAddMeal}
-                initialData={editingMeal}
+                meal={editingMeal}
             />
         </div>
     );

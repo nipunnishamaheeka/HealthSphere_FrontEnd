@@ -10,7 +10,7 @@ const initialState: ActivityState = {
 };
 
 const api = axios.create({
-    baseURL: "http://localhost:3000/activitytracker",
+    baseURL: "/api/activitytracker",
     headers: {
         'Content-Type': 'application/json',
     },

@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from 'react';
-import { X, Plus, User, Mail, Phone, Calendar } from 'lucide-react';
+import {  Plus} from 'lucide-react';
 import {
     Dialog,
     DialogContent,

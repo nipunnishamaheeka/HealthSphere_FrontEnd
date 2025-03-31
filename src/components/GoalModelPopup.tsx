@@ -84,8 +84,9 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({ isOpen, onClose, onAddGoal 
             resetForm();
             onClose();
         }}>
+
             <DialogContent
-                className="sm:max-w-md"
+                className="sm:max-w-md fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg backdrop-blur-2xl"
                 aria-describedby="goal-form-description"
             >
                 <DialogHeader>
@@ -106,18 +107,18 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({ isOpen, onClose, onAddGoal 
                         />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 bg-white">
                         <Label htmlFor="category">Category</Label>
                         <Select value={category} onValueChange={setCategory} required>
-                            <SelectTrigger id="category">
+                            <SelectTrigger id="category" className = "bg-white ">
                                 <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Weight Management">Weight Management</SelectItem>
-                                <SelectItem value="Cardio">Cardio</SelectItem>
-                                <SelectItem value="Strength">Strength</SelectItem>
-                                <SelectItem value="Wellness">Wellness</SelectItem>
-                                <SelectItem value="Nutrition">Nutrition</SelectItem>
+                                <SelectItem value="Weight Management" className = "bg-white">Weight Management</SelectItem>
+                                <SelectItem value="Cardio" className = "bg-white">Cardio</SelectItem>
+                                <SelectItem value="Strength" className = "bg-white">Strength</SelectItem>
+                                <SelectItem value="Wellness" className = "bg-white">Wellness</SelectItem>
+                                <SelectItem value="Nutrition" className = "bg-white">Nutrition</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

@@ -26,7 +26,6 @@ const EmergencyContact: React.FC = () => {
         contactNumber: "",
     });
 
-    // State to track which contact is being edited
     const [editingContactId, setEditingContactId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -48,7 +47,6 @@ const EmergencyContact: React.FC = () => {
         });
     };
 
-    // Handle input change for existing contacts
     const handleContactInputChange = (contactId: string, field: string, value: string) => {
         const updatedContacts = contacts.map(contact => {
             if (contact.id === contactId) {
@@ -56,10 +54,8 @@ const EmergencyContact: React.FC = () => {
             }
             return contact;
         });
-        // Update the local state without dispatching an action
         const contactToUpdate = updatedContacts.find(c => c.id === contactId);
         if (contactToUpdate) {
-            // This is a visual update only until save is clicked
             console.log(`Updated field ${field} for contact ${contactId}`);
         }
     };
@@ -94,7 +90,6 @@ const EmergencyContact: React.FC = () => {
     };
 
     const handleUpdateContact = (contact: any) => {
-        // Create an updated contact model with the correct structure
         const updatedContact = new EmergencyContactModel(
             contact.id,
             contact.user_id,

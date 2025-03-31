@@ -18,9 +18,9 @@ interface MealPlanPopupProps {
 }
 
 interface MealData {
-    type: string;
+    mealType: string;
     time: string;
-    items: string[];
+    ingredients: string[];
     calories: number;
     protein: string;
     carbs: string;
@@ -29,11 +29,11 @@ interface MealData {
 
 const mealTypes = [
     'Breakfast',
-    'Morning Snack',
+    //'Morning Snack',
     'Lunch',
-    'Afternoon Snack',
+    //'Afternoon Snack',
     'Dinner',
-    'Evening Snack'
+   // 'Evening Snack'
 ] as const;
 
 type MealType = typeof mealTypes[number];
@@ -44,9 +44,9 @@ const MealPlanPopup: React.FC<MealPlanPopupProps> = ({
                                                          onSubmit
                                                      }) => {
     const [formData, setFormData] = useState<MealData>({
-        type: '',
+        mealType: '',
         time: '',
-        items: [''],
+        ingredients: [''],
         calories: 0,
         protein: '',
         carbs: '',
@@ -56,21 +56,21 @@ const MealPlanPopup: React.FC<MealPlanPopupProps> = ({
     const handleAddItem = () => {
         setFormData(prev => ({
             ...prev,
-            items: [...prev.items, '']
+            ingredients: [...prev.ingredients, '']
         }));
     };
 
     const handleRemoveItem = (index: number) => {
         setFormData(prev => ({
             ...prev,
-            items: prev.items.filter((_, idx) => idx !== index)
+            ingredients: prev.ingredients.filter((_, idx) => idx !== index)
         }));
     };
 
     const handleItemChange = (index: number, value: string) => {
         setFormData(prev => ({
             ...prev,
-            items: prev.items.map((item, idx) => idx === index ? value : item)
+            ingredients: prev.ingredients.map((item, idx) => idx === index ? value : item)
         }));
     };
 
@@ -82,9 +82,9 @@ const MealPlanPopup: React.FC<MealPlanPopupProps> = ({
         e.preventDefault();
         onSubmit(formData);
         setFormData({
-            type: '',
+            mealType: '',
             time: '',
-            items: [''],
+            ingredients: [''],
             calories: 0,
             protein: '',
             carbs: '',
@@ -115,16 +115,17 @@ const MealPlanPopup: React.FC<MealPlanPopupProps> = ({
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Meal Type</label>
                                 <Select
-                                    value={formData.type}
+                                    value={formData.mealType}
                                     onValueChange={(value: string) =>
-                                        setFormData(prev => ({ ...prev, type: value }))
+                                        setFormData(prev => ({ ...prev, mealType: value }))
                                     }
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select meal type" />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        {mealTypes.map((type) => (
+                                    <SelectContent className="z-50 bg-white shadow-lg border border-gray-300">
+
+                                    {mealTypes.map((type) => (
                                             <SelectItem key={type} value={type}>
                                                 {type}
                                             </SelectItem>
@@ -147,7 +148,7 @@ const MealPlanPopup: React.FC<MealPlanPopupProps> = ({
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Meal Items</label>
-                            {formData.items.map((item, index) => (
+                            {formData.ingredients.map((item, index) => (
                                 <div key={index} className="flex gap-2">
                                     <Input
                                         value={item}
@@ -155,7 +156,7 @@ const MealPlanPopup: React.FC<MealPlanPopupProps> = ({
                                         placeholder={`Item ${index + 1}`}
                                         className="flex-1"
                                     />
-                                    {index === formData.items.length - 1 ? (
+                                    {index === formData.ingredients.length - 1 ? (
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -247,7 +248,7 @@ const MealPlanPopup: React.FC<MealPlanPopupProps> = ({
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={!formData.type || !formData.time || formData.items.some(item => !item)}
+                                disabled={!formData.mealType || !formData.time || formData.ingredients.some(item => !item)}
                             >
                                 Add Meal
                             </Button>

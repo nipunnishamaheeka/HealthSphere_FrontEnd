@@ -26,7 +26,6 @@ interface MetricConfig {
 }
 
 export const Dashboard: React.FC = () => {
-    // Sample data - in real app, this would come from an API
     const healthData: HealthData[] = [
         { date: 'Mon', weight: 70, sleep: 7, water: 2000, steps: 8000 },
         { date: 'Tue', weight: 69.8, sleep: 6.5, water: 2500, steps: 10000 },

@@ -1,3 +1,4 @@
+
 export class GoalSettingModel {
     goal_id: string;
     user_id: string;

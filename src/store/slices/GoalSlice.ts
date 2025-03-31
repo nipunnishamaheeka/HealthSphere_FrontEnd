@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createSelector, createAsyncThunk } from '@reduxjs/toolkit';
-import { Goal, Achievement, User } from '../../types/type';
+import { Goal, Achievement, User } from '../../types/goalType';
 import { GoalSettingModel } from "../../model/GoalModel";
 import axios from "axios";
 
@@ -20,16 +20,15 @@ export const initialState: GoalState = {
 };
 
 const api = axios.create({
-    baseURL: "http://localhost:3000/goal",
+    baseURL: "/api/goal",
 });
 
 // Convert GoalSettingModel to Goal
 const convertToGoal = (goalSetting: GoalSettingModel): Goal => {
-    // Ensure target_date is a valid Date object
+
     const targetDate = goalSetting.target_date ? new Date(goalSetting.target_date) : new Date();
 
     if (isNaN(targetDate.getTime())) {
-        console.error("Invalid target_date received:", goalSetting.target_date);
         throw new Error("Invalid target_date format");
     }
 
@@ -50,13 +49,12 @@ const convertToGoal = (goalSetting: GoalSettingModel): Goal => {
     };
 };
 
-
 // Convert Goal to GoalSettingModel
 const convertToGoalSetting = (goal: Goal): GoalSettingModel => {
-    console.log("Converting Goal to GoalSettingModel:", goal);
     return new GoalSettingModel(
         goal.id.toString(),
-        goal.user_id || "default",
+    //    goal.user_id || "default",
+        "U12345",
         goal.category,
         goal.target,
         goal.progress,
@@ -68,12 +66,15 @@ export const fetchGoals = createAsyncThunk(
     "goal/fetchGoals",
     async (_, { rejectWithValue }) => {
         try {
-            console.log("Fetching goals from API...");
             const response = await api.get("/get");
-            console.log("Fetched goals:", response.data);
-            return response.data.map(convertToGoal);
+
+            // Handle both array and single object responses
+            const goalsData = Array.isArray(response.data)
+                ? response.data
+                : [response.data];
+
+            return goalsData.map(convertToGoal);
         } catch (err: any) {
-            console.error("Error fetching goals:", err);
             return rejectWithValue(err.response?.data || "Failed to fetch goals");
         }
     }
@@ -83,13 +84,10 @@ export const updateGoal = createAsyncThunk(
     "goal/updateGoal",
     async (goal: Goal, { rejectWithValue }) => {
         try {
-            console.log("Updating goal:", goal);
             const goalSetting = convertToGoalSetting(goal);
             const response = await api.put(`/update/${goal.id}`, goalSetting);
-            console.log("Updated goal response:", response.data);
             return convertToGoal(response.data);
         } catch (err: any) {
-            console.error("Error updating goal:", err);
             return rejectWithValue(err.response?.data || "Failed to update goal");
         }
     }
@@ -99,38 +97,37 @@ export const deleteGoal = createAsyncThunk(
     "goal/deleteGoal",
     async (goalId: number, { rejectWithValue }) => {
         try {
-            console.log(`Deleting goal with ID: ${goalId}`);
             await api.delete(`/delete/${goalId}`);
             return goalId;
         } catch (err: any) {
-            console.error("Error deleting goal:", err);
             return rejectWithValue(err.response?.data || "Failed to delete goal");
         }
     }
 );
 
-
 export const createGoal = createAsyncThunk(
     "goal/createGoal",
     async (goal: Omit<Goal, 'id' | 'createdAt'>, { rejectWithValue }) => {
         try {
-            console.log("Creating new goal:", goal);
+            // Create a temporary complete Goal object for conversion
             const newGoal: Goal = {
                 ...goal,
-                id: Date.now(),
-                createdAt: new Date().toISOString()
+                id: Date.now(), // Temporary ID that will be replaced by backend
+                createdAt: new Date().toISOString(),
+                // Ensure milestones exists if it wasn't provided
+                milestones: goal.milestones || []
             };
+
             const goalSetting = convertToGoalSetting(newGoal);
             const response = await api.post("/post", goalSetting);
-            console.log("Created goal response:", response.data);
+
+            // Return the goal with the proper ID from the server
             return convertToGoal(response.data);
         } catch (err: any) {
-            console.error("Error creating goal:", err);
             return rejectWithValue(err.response?.data || "Failed to create goal");
         }
     }
 );
-
 
 const goalSlice = createSlice({
     name: 'goal',
@@ -148,7 +145,7 @@ const goalSlice = createSlice({
         },
         toggleMilestone: (state, action: PayloadAction<{ goalId: number; milestoneIndex: number }>) => {
             const goal = state.goals.find(g => g.id === action.payload.goalId);
-            if (goal) {
+            if (goal && goal.milestones && goal.milestones.length > action.payload.milestoneIndex) {
                 goal.milestones[action.payload.milestoneIndex].completed =
                     !goal.milestones[action.payload.milestoneIndex].completed;
                 const completedMilestones = goal.milestones.filter(m => m.completed).length;
@@ -165,6 +162,7 @@ const goalSlice = createSlice({
         builder
             .addCase(fetchGoals.pending, (state) => {
                 state.isLoading = true;
+                state.error = null;
             })
             .addCase(fetchGoals.fulfilled, (state, action) => {
                 state.isLoading = false;
@@ -175,18 +173,47 @@ const goalSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload as string;
             })
-            // Handle other async actions similarly
+            .addCase(createGoal.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
             .addCase(createGoal.fulfilled, (state, action) => {
+                state.isLoading = false;
                 state.goals.push(action.payload);
+                state.error = null;
+            })
+            .addCase(createGoal.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+            .addCase(updateGoal.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
             })
             .addCase(updateGoal.fulfilled, (state, action) => {
+                state.isLoading = false;
                 const index = state.goals.findIndex(g => g.id === action.payload.id);
                 if (index !== -1) {
                     state.goals[index] = action.payload;
                 }
+                state.error = null;
+            })
+            .addCase(updateGoal.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+            .addCase(deleteGoal.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
             })
             .addCase(deleteGoal.fulfilled, (state, action) => {
+                state.isLoading = false;
                 state.goals = state.goals.filter(goal => goal.id !== action.payload);
+                state.error = null;
+            })
+            .addCase(deleteGoal.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
             });
     }
 });
@@ -197,6 +224,10 @@ const calculateGoalStatus = (goal: Pick<Goal, 'progress' | 'createdAt' | 'deadli
     const today = new Date();
     const totalDays = deadline.getTime() - new Date(goal.createdAt).getTime();
     const daysElapsed = today.getTime() - new Date(goal.createdAt).getTime();
+
+    // Handle edge cases to avoid NaN
+    if (totalDays <= 0) return 'On Track';
+
     const expectedProgress = (daysElapsed / totalDays) * 100;
 
     if (goal.progress >= expectedProgress + 10) return 'Ahead';

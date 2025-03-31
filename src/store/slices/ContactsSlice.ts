@@ -5,7 +5,7 @@ import axios from "axios";
 export const initialState: EmergencyContactModel[] = [];
 
 const api = axios.create({
-    baseURL: "http://localhost:3000/emergencycontact",
+    baseURL: "/api/emergencycontact",
 })
 
 export const getEmergencyContacts = createAsyncThunk(

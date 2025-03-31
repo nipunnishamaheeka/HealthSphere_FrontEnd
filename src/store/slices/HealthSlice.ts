@@ -4,8 +4,9 @@ import axios from "axios";
 
 export const initialState: HealthLogModel[] = [];
 
+// Use the proxy configured in vite.config.ts
 const api = axios.create({
-    baseURL: "http://localhost:3000/healthlog",
+    baseURL: "/api/healthlog",
 });
 
 // ** Get all health logs **
